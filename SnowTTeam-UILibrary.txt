@@ -1,0 +1,908 @@
+--[[
+    UI Library for Roblox
+    Version: 1.2
+    Features:
+    - Создание окон, кнопок, текстовых полей, переключателей и других элементов
+    - Гибкая система позиционирования и размеров
+    - Поддержка тем (светлая/тёмная)
+    - Анимации и эффекты
+    - Кастомные стили
+]]
+
+local UILibrary = {}
+UILibrary.__index = UILibrary
+
+-- Сервисы
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+-- Константы
+local DEFAULT_TWEEN_INFO = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local SCREEN_GUI_NAME = "UILibraryScreenGui"
+
+-- Тема по умолчанию
+local defaultTheme = {
+    Primary = Color3.fromRGB(0, 120, 215),
+    Secondary = Color3.fromRGB(40, 40, 40),
+    Background = Color3.fromRGB(30, 30, 30),
+    Text = Color3.fromRGB(255, 255, 255),
+    Error = Color3.fromRGB(255, 50, 50),
+    Success = Color3.fromRGB(50, 255, 50),
+    Border = Color3.fromRGB(60, 60, 60),
+    LightBackground = Color3.fromRGB(45, 45, 45)
+}
+
+-- Вспомогательные функции
+local function createInstance(className, properties)
+    local instance = Instance.new(className)
+    for property, value in pairs(properties) do
+        instance[property] = value
+    end
+    return instance
+end
+
+local function createCorner(radius)
+    return createInstance("UICorner", {CornerRadius = UDim.new(0, radius)})
+end
+
+local function createPadding(padding)
+    return createInstance("UIPadding", {
+        PaddingLeft = UDim.new(0, padding),
+        PaddingRight = UDim.new(0, padding),
+        PaddingTop = UDim.new(0, padding),
+        PaddingBottom = UDim.new(0, padding)
+    })
+end
+
+local function createStroke(color, thickness)
+    return createInstance("UIStroke", {
+        Color = color,
+        Thickness = thickness,
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    })
+end
+
+local function tween(instance, properties, tweenInfo)
+    local tween = TweenService:Create(instance, tweenInfo or DEFAULT_TWEEN_INFO, properties)
+    tween:Play()
+    return tween
+end
+
+-- Основной конструктор UI библиотеки
+function UILibrary.new(options)
+    options = options or {}
+    
+    local self = setmetatable({}, UILibrary)
+    
+    -- Настройки
+    self.theme = options.theme or defaultTheme
+    self.defaultParent = options.parent or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    self.resolution = options.resolution or Vector2.new(1920, 1080)
+    
+    -- Создаем основной ScreenGui
+    self.screenGui = createInstance("ScreenGui", {
+        Name = SCREEN_GUI_NAME,
+        ResetOnSpawn = false,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+        Parent = self.defaultParent
+    })
+    
+    -- Хранилище окон
+    self.windows = {}
+    self.currentWindow = nil
+    
+    return self
+end
+
+-- Создание окна
+function UILibrary:CreateWindow(title, options)
+    options = options or {}
+    local size = options.size or UDim2.new(0.4, 0, 0.5, 0)
+    local position = options.position or UDim2.new(0.3, 0, 0.25, 0)
+    local draggable = options.draggable == nil and true or options.draggable
+    local closable = options.closable == nil and true or options.closable
+    local minSize = options.minSize or Vector2.new(200, 150)
+    
+    -- Основной фрейм окна
+    local windowFrame = createInstance("Frame", {
+        Name = title .. "Window",
+        Size = size,
+        Position = position,
+        BackgroundColor3 = self.theme.Background,
+        Parent = self.screenGui,
+        ClipsDescendants = true
+    })
+    
+    createCorner(8).Parent = windowFrame
+    createStroke(self.theme.Border, 1).Parent = windowFrame
+    
+    -- Заголовок окна
+    local titleBar = createInstance("Frame", {
+        Name = "TitleBar",
+        Size = UDim2.new(1, 0, 0, 30),
+        BackgroundColor3 = self.theme.Secondary,
+        Parent = windowFrame
+    })
+    
+    createStroke(self.theme.Border, 1).Parent = titleBar
+    
+    local titleLabel = createInstance("TextLabel", {
+        Name = "TitleLabel",
+        Size = UDim2.new(1, closable and -30 or -10, 1, 0),
+        Position = UDim2.new(0, 10, 0, 0),
+        BackgroundTransparency = 1,
+        Text = title,
+        TextColor3 = self.theme.Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.GothamSemibold,
+        TextSize = 14,
+        Parent = titleBar
+    })
+    
+    -- Кнопка закрытия (если разрешено)
+    if closable then
+        local closeButton = createInstance("TextButton", {
+            Name = "CloseButton",
+            Size = UDim2.new(0, 20, 0, 20),
+            Position = UDim2.new(1, -25, 0.5, -10),
+            BackgroundColor3 = self.theme.Error,
+            Text = "X",
+            TextColor3 = self.theme.Text,
+            Font = Enum.Font.GothamBold,
+            TextSize = 12,
+            Parent = titleBar
+        })
+        
+        createCorner(10).Parent = closeButton
+        
+        closeButton.MouseEnter:Connect(function()
+            tween(closeButton, {BackgroundColor3 = Color3.new(1, 0.3, 0.3)})
+        end)
+        
+        closeButton.MouseLeave:Connect(function()
+            tween(closeButton, {BackgroundColor3 = self.theme.Error})
+        end)
+        
+        closeButton.MouseButton1Click:Connect(function()
+            self:CloseWindow(windowFrame)
+        end)
+    end
+    
+    -- Контейнер для элементов UI
+    local contentFrame = createInstance("ScrollingFrame", {
+        Name = "ContentFrame",
+        Size = UDim2.new(1, 0, 1, -30),
+        Position = UDim2.new(0, 0, 0, 30),
+        BackgroundTransparency = 1,
+        ScrollBarThickness = 5,
+        ScrollBarImageColor3 = self.theme.Secondary,
+        Parent = windowFrame
+    })
+    
+    createPadding(10).Parent = contentFrame
+    
+    -- Функционал перетаскивания
+    if draggable then
+        local dragging
+        local dragInput
+        local dragStart
+        local startPos
+        
+        local function update(input)
+            local delta = input.Position - dragStart
+            local newPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            tween(windowFrame, {Position = newPos})
+        end
+        
+        titleBar.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = true
+                dragStart = input.Position
+                startPos = windowFrame.Position
+                
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragging = false
+                    end
+                end)
+            end
+        end)
+        
+        titleBar.InputChanged:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+                dragInput = input
+            end
+        end)
+        
+        UserInputService.InputChanged:Connect(function(input)
+            if input == dragInput and dragging then
+                update(input)
+            end
+        end)
+    end
+    
+    -- Функционал изменения размера
+    local resizeHandle = createInstance("TextButton", {
+        Name = "ResizeHandle",
+        Size = UDim2.new(0, 15, 0, 15),
+        Position = UDim2.new(1, -15, 1, -15),
+        BackgroundColor3 = self.theme.Secondary,
+        Text = "",
+        Parent = windowFrame,
+        ZIndex = 2
+    })
+    
+    createCorner(4).Parent = resizeHandle
+    
+    local resizing
+    local resizeStart
+    local startSize
+    
+    resizeHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            resizing = true
+            resizeStart = input.Position
+            startSize = windowFrame.Size
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    resizing = false
+                end
+            end)
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if resizing and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - resizeStart
+            local newSize = UDim2.new(
+                startSize.X.Scale, 
+                math.max(minSize.X, startSize.X.Offset + delta.X),
+                startSize.Y.Scale,
+                math.max(minSize.Y, startSize.Y.Offset + delta.Y)
+            )
+            windowFrame.Size = newSize
+        end
+    end)
+    
+    -- Сохраняем окно в таблицу
+    local windowData = {
+        Frame = windowFrame,
+        Title = title,
+        Content = contentFrame,
+        Elements = {},
+        Tabs = {}
+    }
+    
+    table.insert(self.windows, windowData)
+    self.currentWindow = windowData
+    
+    -- Автоматическое обновление layout
+    local uiListLayout = createInstance("UIListLayout", {
+        Name = "ContentLayout",
+        Padding = UDim.new(0, 5),
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Parent = contentFrame
+    })
+    
+    uiListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        contentFrame.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y + 20)
+    end)
+    
+    return windowData
+end
+
+-- Закрытие окна
+function UILibrary:CloseWindow(window)
+    if typeof(window) == "string" then
+        for i, win in ipairs(self.windows) do
+            if win.Title == window then
+                win.Frame:Destroy()
+                table.remove(self.windows, i)
+                break
+            end
+        end
+    elseif window:IsA("Instance") then
+        for i, win in ipairs(self.windows) do
+            if win.Frame == window then
+                win.Frame:Destroy()
+                table.remove(self.windows, i)
+                break
+            end
+        end
+    end
+end
+
+-- Создание кнопки
+function UILibrary:CreateButton(options)
+    if not self.currentWindow then error("No active window to create button in") end
+    
+    options = options or {}
+    local text = options.text or "Button"
+    local callback = options.callback or function() end
+    local size = options.size or UDim2.new(1, -20, 0, 30)
+    
+    local button = createInstance("TextButton", {
+        Name = text .. "Button",
+        Size = size,
+        BackgroundColor3 = self.theme.Primary,
+        Text = text,
+        TextColor3 = self.theme.Text,
+        Font = Enum.Font.GothamSemibold,
+        TextSize = 14,
+        Parent = self.currentWindow.Content,
+        AutoButtonColor = false
+    })
+    
+    createCorner(4).Parent = button
+    
+    -- Эффекты при наведении
+    button.MouseEnter:Connect(function()
+        tween(button, {BackgroundColor3 = self.theme.Primary:Lerp(Color3.new(1, 1, 1), 0.2)})
+    end)
+    
+    button.MouseLeave:Connect(function()
+        tween(button, {BackgroundColor3 = self.theme.Primary})
+    end)
+    
+    button.MouseButton1Down:Connect(function()
+        tween(button, {BackgroundColor3 = self.theme.Primary:Lerp(Color3.new(0, 0, 0), 0.2)})
+    end)
+    
+    button.MouseButton1Up:Connect(function()
+        tween(button, {BackgroundColor3 = self.theme.Primary:Lerp(Color3.new(1, 1, 1), 0.2)})
+        callback()
+    end)
+    
+    table.insert(self.currentWindow.Elements, button)
+    return button
+end
+
+-- Создание текстового поля
+function UILibrary:CreateTextBox(options)
+    if not self.currentWindow then error("No active window to create text box in") end
+    
+    options = options or {}
+    local placeholder = options.placeholder or "Enter text..."
+    local default = options.default or ""
+    local callback = options.callback or function(text) end
+    local size = options.size or UDim2.new(1, -20, 0, 30)
+    
+    local textBoxContainer = createInstance("Frame", {
+        Name = "TextBoxContainer",
+        Size = size,
+        BackgroundColor3 = self.theme.LightBackground,
+        Parent = self.currentWindow.Content
+    })
+    
+    createCorner(4).Parent = textBoxContainer
+    createStroke(self.theme.Border, 1).Parent = textBoxContainer
+    
+    local textBox = createInstance("TextBox", {
+        Name = "TextBox",
+        Size = UDim2.new(1, -10, 1, -10),
+        Position = UDim2.new(0, 5, 0, 5),
+        BackgroundTransparency = 1,
+        Text = default,
+        PlaceholderText = placeholder,
+        TextColor3 = self.theme.Text,
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = textBoxContainer
+    })
+    
+    textBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            callback(textBox.Text)
+        end
+    end)
+    
+    table.insert(self.currentWindow.Elements, textBoxContainer)
+    return textBox
+end
+
+-- Создание переключателя (toggle)
+function UILibrary:CreateToggle(options)
+    if not self.currentWindow then error("No active window to create toggle in") end
+    
+    options = options or {}
+    local text = options.text or "Toggle"
+    local default = options.default or false
+    local callback = options.callback or function(state) end
+    
+    local toggleContainer = createInstance("Frame", {
+        Name = text .. "ToggleContainer",
+        Size = UDim2.new(1, -20, 0, 25),
+        BackgroundTransparency = 1,
+        Parent = self.currentWindow.Content
+    })
+    
+    local toggleLabel = createInstance("TextLabel", {
+        Name = "ToggleLabel",
+        Size = UDim2.new(1, -35, 1, 0),
+        BackgroundTransparency = 1,
+        Text = text,
+        TextColor3 = self.theme.Text,
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = toggleContainer
+    })
+    
+    local toggleButton = createInstance("TextButton", {
+        Name = "ToggleButton",
+        Size = UDim2.new(0, 25, 0, 25),
+        Position = UDim2.new(1, -25, 0, 0),
+        BackgroundColor3 = default and self.theme.Primary or self.theme.Secondary,
+        Text = "",
+        Parent = toggleContainer,
+        AutoButtonColor = false
+    })
+    
+    createCorner(12).Parent = toggleButton
+    createStroke(self.theme.Border, 1).Parent = toggleButton
+    
+    local toggleState = default
+    
+    local function updateToggle()
+        tween(toggleButton, {BackgroundColor3 = toggleState and self.theme.Primary or self.theme.Secondary})
+        callback(toggleState)
+    end
+    
+    toggleButton.MouseButton1Click:Connect(function()
+        toggleState = not toggleState
+        updateToggle()
+    end)
+    
+    table.insert(self.currentWindow.Elements, toggleContainer)
+    
+    return {
+        SetState = function(self, state)
+            toggleState = state
+            updateToggle()
+        end,
+        GetState = function(self)
+            return toggleState
+        end
+    }
+end
+
+-- Создание слайдера
+function UILibrary:CreateSlider(options)
+    if not self.currentWindow then error("No active window to create slider in") end
+    
+    options = options or {}
+    local text = options.text or "Slider"
+    local min = options.min or 0
+    local max = options.max or 100
+    local default = options.default or min
+    local callback = options.callback or function(value) end
+    local precise = options.precise or false
+    local suffix = options.suffix or ""
+    
+    local sliderContainer = createInstance("Frame", {
+        Name = text .. "SliderContainer",
+        Size = UDim2.new(1, -20, 0, 50),
+        BackgroundTransparency = 1,
+        Parent = self.currentWindow.Content
+    })
+    
+    local sliderLabel = createInstance("TextLabel", {
+        Name = "SliderLabel",
+        Size = UDim2.new(1, 0, 0, 15),
+        BackgroundTransparency = 1,
+        Text = text,
+        TextColor3 = self.theme.Text,
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = sliderContainer
+    })
+    
+    local sliderValueLabel = createInstance("TextLabel", {
+        Name = "SliderValueLabel",
+        Size = UDim2.new(0, 60, 0, 15),
+        Position = UDim2.new(1, -60, 0, 0),
+        BackgroundTransparency = 1,
+        Text = default .. suffix,
+        TextColor3 = self.theme.Text,
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Right,
+        Parent = sliderContainer
+    })
+    
+    local sliderTrack = createInstance("Frame", {
+        Name = "SliderTrack",
+        Size = UDim2.new(1, 0, 0, 10),
+        Position = UDim2.new(0, 0, 0, 25),
+        BackgroundColor3 = self.theme.Secondary,
+        Parent = sliderContainer
+    })
+    
+    createCorner(5).Parent = sliderTrack
+    
+    local sliderFill = createInstance("Frame", {
+        Name = "SliderFill",
+        Size = UDim2.new((default - min) / (max - min), 0, 1, 0),
+        BackgroundColor3 = self.theme.Primary,
+        Parent = sliderTrack
+    })
+    
+    createCorner(5).Parent = sliderFill
+    
+    local sliderButton = createInstance("TextButton", {
+        Name = "SliderButton",
+        Size = UDim2.new(0, 15, 0, 15),
+        Position = UDim2.new((default - min) / (max - min), -7, 0.5, -7),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        Text = "",
+        Parent = sliderTrack,
+        ZIndex = 2
+    })
+    
+    createCorner(7).Parent = sliderButton
+    
+    local dragging = false
+    
+    local function updateSlider(input)
+        local x = (input.Position.X - sliderTrack.AbsolutePosition.X) / sliderTrack.AbsoluteSize.X
+        x = math.clamp(x, 0, 1)
+        
+        local value
+        if precise then
+            value = math.floor(min + (max - min) * x)
+        else
+            value = min + (max - min) * x
+        end
+        
+        sliderFill.Size = UDim2.new(x, 0, 1, 0)
+        sliderButton.Position = UDim2.new(x, -7, 0.5, -7)
+        sliderValueLabel.Text = value .. suffix
+        
+        callback(value)
+    end
+    
+    sliderButton.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    sliderTrack.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            updateSlider(input)
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            updateSlider(input)
+        end
+    end)
+    
+    table.insert(self.currentWindow.Elements, sliderContainer)
+    
+    return {
+        SetValue = function(self, value)
+            local x = (value - min) / (max - min)
+            x = math.clamp(x, 0, 1)
+            
+            sliderFill.Size = UDim2.new(x, 0, 1, 0)
+            sliderButton.Position = UDim2.new(x, -7, 0.5, -7)
+            sliderValueLabel.Text = value .. suffix
+            callback(value)
+        end
+    }
+end
+
+-- Создание выпадающего списка
+function UILibrary:CreateDropdown(options)
+    if not self.currentWindow then error("No active window to create dropdown in") end
+    
+    options = options or {}
+    local text = options.text or "Dropdown"
+    local items = options.items or {}
+    local default = options.default or 1
+    local callback = options.callback or function(item, index) end
+    
+    if #items == 0 then
+        items = {"No items provided"}
+    end
+    
+    local dropdownContainer = createInstance("Frame", {
+        Name = text .. "DropdownContainer",
+        Size = UDim2.new(1, -20, 0, 30),
+        BackgroundTransparency = 1,
+        Parent = self.currentWindow.Content
+    })
+    
+    local dropdownButton = createInstance("TextButton", {
+        Name = "DropdownButton",
+        Size = UDim2.new(1, 0, 0, 30),
+        BackgroundColor3 = self.theme.Secondary,
+        Text = text .. ": " .. items[default],
+        TextColor3 = self.theme.Text,
+    Font = Enum.Font.Gotham,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = dropdownContainer,
+        AutoButtonColor = false
+    })
+    
+    createCorner(4).Parent = dropdownButton
+    createStroke(self.theme.Border, 1).Parent = dropdownButton
+    
+    local dropdownArrow = createInstance("ImageLabel", {
+        Name = "DropdownArrow",
+        Size = UDim2.new(0, 15, 0, 15),
+        Position = UDim2.new(1, -20, 0.5, -7),
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://3926305904",
+        ImageRectOffset = Vector2.new(564, 284),
+        ImageRectSize = Vector2.new(36, 36),
+        ImageColor3 = self.theme.Text,
+        Parent = dropdownButton
+    })
+    
+    local dropdownList = createInstance("ScrollingFrame", {
+        Name = "DropdownList",
+        Size = UDim2.new(1, 0, 0, 0),
+        Position = UDim2.new(0, 0, 0, 35),
+        BackgroundColor3 = self.theme.LightBackground,
+        ScrollBarThickness = 5,
+        ScrollBarImageColor3 = self.theme.Secondary,
+        Visible = false,
+        Parent = dropdownContainer
+    })
+    
+    createCorner(4).Parent = dropdownList
+    createStroke(self.theme.Border, 1).Parent = dropdownList
+    
+    local listLayout = createInstance("UIListLayout", {
+        Name = "ListLayout",
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Parent = dropdownList
+    })
+    
+    local opened = false
+    
+    local function toggleDropdown()
+        opened = not opened
+        
+        if opened then
+            dropdownList.Visible = true
+            tween(dropdownList, {Size = UDim2.new(1, 0, 0, math.min(150, #items * 30))})
+            tween(dropdownArrow, {Rotation = 180})
+        else
+            tween(dropdownList, {Size = UDim2.new(1, 0, 0, 0)}):Wait()
+            dropdownList.Visible = false
+            tween(dropdownArrow, {Rotation = 0})
+        end
+    end
+    
+    local function createDropdownItems()
+        -- Очищаем предыдущие элементы
+        for _, child in ipairs(dropdownList:GetChildren()) do
+            if child:IsA("TextButton") then
+                child:Destroy()
+            end
+        end
+        
+        -- Создаем новые элементы
+        for i, item in ipairs(items) do
+            local itemButton = createInstance("TextButton", {
+                Name = "Item" .. i,
+                Size = UDim2.new(1, -10, 0, 25),
+                Position = UDim2.new(0, 5, 0, (i-1)*30),
+                BackgroundColor3 = self.theme.LightBackground,
+                Text = item,
+                TextColor3 = self.theme.Text,
+                Font = Enum.Font.Gotham,
+                TextSize = 14,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = dropdownList,
+                AutoButtonColor = false
+            })
+            
+            createPadding(5).Parent = itemButton
+            
+            itemButton.MouseEnter:Connect(function()
+                tween(itemButton, {BackgroundColor3 = self.theme.Secondary})
+            end)
+            
+            itemButton.MouseLeave:Connect(function()
+                tween(itemButton, {BackgroundColor3 = self.theme.LightBackground})
+            end)
+            
+            itemButton.MouseButton1Click:Connect(function()
+                dropdownButton.Text = text .. ": " .. item
+                toggleDropdown()
+                callback(item, i)
+            end)
+        end
+        
+        listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            dropdownList.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
+        end)
+    end
+    
+    createDropdownItems()
+    
+    dropdownButton.MouseButton1Click:Connect(toggleDropdown)
+    
+    -- Закрытие при клике вне dropdown
+    UserInputService.InputBegan:Connect(function(input, processed)
+        if opened and input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if not dropdownContainer:IsDescendantOf(self.screenGui) then return end
+            
+            local mousePos = input.Position
+            local absolutePos = dropdownContainer.AbsolutePosition
+            local absoluteSize = dropdownContainer.AbsoluteSize
+            
+            if not (mousePos.X >= absolutePos.X and mousePos.X <= absolutePos.X + absoluteSize.X and
+                   mousePos.Y >= absolutePos.Y and mousePos.Y <= absolutePos.Y + absoluteSize.Y) then
+                toggleDropdown()
+            end
+        end
+    end)
+    
+    table.insert(self.currentWindow.Elements, dropdownContainer)
+    
+    return {
+        Refresh = function(self, newItems)
+            items = newItems or items
+            if #items == 0 then items = {"No items provided"} end
+            createDropdownItems()
+        end,
+        SetSelected = function(self, index)
+            if index >= 1 and index <= #items then
+                dropdownButton.Text = text .. ": " .. items[index]
+                callback(items[index], index)
+            end
+        end
+    }
+end
+
+-- Создание вкладок
+function UILibrary:CreateTabs(tabNames)
+    if not self.currentWindow then error("No active window to create tabs in") end
+    
+    local tabsContainer = createInstance("Frame", {
+        Name = "TabsContainer",
+        Size = UDim2.new(1, -20, 0, 30),
+        BackgroundTransparency = 1,
+        Parent = self.currentWindow.Content
+    })
+    
+    local tabsListLayout = createInstance("UIListLayout", {
+        Name = "TabsListLayout",
+        FillDirection = Enum.FillDirection.Horizontal,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Parent = tabsContainer
+    })
+    
+    local tabs = {}
+    local currentTab = nil
+    
+    for i, tabName in ipairs(tabNames) do
+        local tabButton = createInstance("TextButton", {
+            Name = tabName .. "Tab",
+            Size = UDim2.new(1/#tabNames, -5, 1, 0),
+            BackgroundColor3 = i == 1 and self.theme.Primary or self.theme.Secondary,
+            Text = tabName,
+            TextColor3 = self.theme.Text,
+            Font = Enum.Font.GothamSemibold,
+            TextSize = 14,
+            Parent = tabsContainer,
+            AutoButtonColor = false
+        })
+        
+        createCorner(4).Parent = tabButton
+        
+        local tabContent = createInstance("Frame", {
+            Name = tabName .. "Content",
+            Size = UDim2.new(1, -20, 1, -70),
+            Position = UDim2.new(0, 10, 0, 40),
+            BackgroundTransparency = 1,
+            Visible = i == 1,
+            Parent = self.currentWindow.Content
+        })
+        
+        local uiListLayout = createInstance("UIListLayout", {
+            Name = "ContentLayout",
+            Padding = UDim.new(0, 5),
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            Parent = tabContent
+        })
+        
+        uiListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            self.currentWindow.Content.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y + 50)
+        end)
+        
+        tabButton.MouseButton1Click:Connect(function()
+            if currentTab == tabButton then return end
+            
+            -- Обновляем стили кнопок
+            for _, btn in ipairs(tabsContainer:GetChildren()) do
+                if btn:IsA("TextButton") then
+                    tween(btn, {BackgroundColor3 = btn == tabButton and self.theme.Primary or self.theme.Secondary})
+                end
+            end
+            
+            -- Скрываем все вкладки и показываем текущую
+            for _, tab in ipairs(self.currentWindow.Tabs) do
+                tab.Content.Visible = tab.Button == tabButton
+            end
+            
+            currentTab = tabButton
+        end)
+        
+        local tabData = {
+            Button = tabButton,
+            Content = tabContent
+        }
+        
+        table.insert(tabs, tabData)
+        table.insert(self.currentWindow.Tabs, tabData)
+        
+        if i == 1 then
+            currentTab = tabButton
+        end
+    end
+    
+    -- Обновляем layout для корректного отображения
+    self.currentWindow.Content.UIListLayout.Padding = UDim.new(0, 10)
+    
+    table.insert(self.currentWindow.Elements, tabsContainer)
+    
+    return {
+        GetTabContent = function(self, tabName)
+            for _, tab in ipairs(self.currentWindow.Tabs) do
+                if tab.Button.Text == tabName then
+                    return tab.Content
+                end
+            end
+            return nil
+        end
+    }
+end
+
+-- Создание метки
+function UILibrary:CreateLabel(options)
+    if not self.currentWindow then error("No active window to create label in") end
+    
+    options = options or {}
+    local text = options.text or "Label"
+    local size = options.size or UDim2.new(1, -20, 0, 20)
+    
+    local label = createInstance("TextLabel", {
+        Name = "Label",
+        Size = size,
+        BackgroundTransparency = 1,
+        Text = text,
+        TextColor3 = self.theme.Text,
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        TextXAlignment = options.center and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left,
+        Parent = self.currentWindow.Content
+    })
+    
+    table.insert(self.currentWindow.Elements, label)
+    return label
+end
+
+-- Очистка всех UI элементов
+function UILibrary:Destroy()
+    self.screenGui:Destroy()
+    self.windows = {}
+    self.currentWindow = nil
+end
+
+return UILibrary
