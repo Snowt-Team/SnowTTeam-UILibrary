@@ -1,0 +1,1829 @@
+local SnowT_UI = {}
+SnowT_UI.__index = SnowT_UI
+
+-- Создание основного фрейма окна (как в предыдущем коде)
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "SnowT_UI"
+screenGui.ResetOnSpawn = false
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Parent = screenGui
+mainFrame.Size = UDim2.new(0, 800, 0, 600)
+mainFrame.Position = UDim2.new(0.3, 0, 0.2, 0)
+mainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+mainFrame.BackgroundTransparency = 0.7
+mainFrame.BorderSizePixel = 0
+
+local roundedFrame = Instance.new("Frame")
+roundedFrame.Parent = mainFrame
+roundedFrame.Size = UDim2.new(1, 0, 1, 0)
+roundedFrame.Position = UDim2.new(0, 0, 0, 0)
+roundedFrame.BackgroundColor3 = Color3.new(1,1,1)
+roundedFrame.BackgroundTransparency = 0
+roundedFrame.BorderSizePixel = 0
+roundedFrame.ClipsDescendants = true
+
+local uicorner = Instance.new("UICorner")
+uicorner.Parent = roundedFrame
+uicorner.CornerRadius = UDim.new(0, 15)
+
+local borderGradient = Instance.new("UIGradient")
+borderGradient.Parent = mainFrame
+borderGradient.Rotation = 90
+borderGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.new(0, 1, 1)),
+    ColorSequenceKeypoint.new(1, Color3.new(0, 0.5, 0))
+})
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Parent = mainFrame
+titleLabel.Size = UDim2.new(1, 0, 0, 30)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.Text = "Loading Script"
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.TextSize = 20
+titleLabel.TextColor3 = Color3.new(1, 1, 1)
+titleLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+titleLabel.BackgroundTransparency = 1
+titleLabel.AnchorPoint = Vector2.new(0, 0)
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+local titleGradient = Instance.new("UIGradient")
+titleGradient.Parent = titleLabel
+titleGradient.Rotation = 0
+titleGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.new(0, 0.5, 1)),
+    ColorSequenceKeypoint.new(1, Color3.new(0, 1, 0.5))
+})
+
+local subTitleLabel = Instance.new("TextLabel")
+subTitleLabel.Parent = mainFrame
+subTitleLabel.Size = UDim2.new(1, 0, 0, 20)
+subTitleLabel.Position = UDim2.new(0, 0, 0, 30)
+subTitleLabel.Text = "Подзаголовок"
+subTitleLabel.Font = Enum.Font.SourceSans
+subTitleLabel.TextSize = 14
+subTitleLabel.TextColor3 = Color3.new(0.8, 0.8, 0.8)
+subTitleLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+subTitleLabel.BackgroundTransparency = 1
+subTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+subTitleLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+local titleSeparator = Instance.new("Frame")
+titleSeparator.Parent = mainFrame
+titleSeparator.Size = UDim2.new(1, 0, 0, 1)
+titleSeparator.Position = UDim2.new(0, 0, 0, 55)
+titleSeparator.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+
+local leftPanel = Instance.new("Frame")
+leftPanel.Parent = mainFrame
+leftPanel.Size = UDim2.new(0, 200, 1, -100)
+leftPanel.Position = UDim2.new(0, 0, 0, 60)
+leftPanel.BackgroundColor3 = Color3.new(0, 0, 0)
+leftPanel.BackgroundTransparency = 0.5
+leftPanel.ClipsDescendants = true
+
+local rightPanel = Instance.new("Frame")
+rightPanel.Parent = mainFrame
+rightPanel.Size = UDim2.new(1, -200, 1, -100)
+rightPanel.Position = UDim2.new(0, 200, 0, 60)
+rightPanel.BackgroundColor3 = Color3.new(0, 0, 0)
+rightPanel.BackgroundTransparency = 0.5
+rightPanel.ClipsDescendants = true
+
+local panelSeparator = Instance.new("Frame")
+panelSeparator.Parent = mainFrame
+panelSeparator.Size = UDim2.new(0, 1, 1, -100)
+panelSeparator.Position = UDim2.new(0, 200, 0, 60)
+panelSeparator.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+
+local topRightInfo = Instance.new("Frame")
+topRightInfo.Parent = mainFrame
+topRightInfo.Size = UDim2.new(0, 200, 0, 20)
+topRightInfo.Position = UDim2.new(1, -205, 0, 5)
+topRightInfo.BackgroundColor3 = Color3.new(1, 1, 1)
+topRightInfo.BackgroundTransparency = 1
+topRightInfo.AnchorPoint = Vector2.new(1, 0)
+topRightInfo.ClipsDescendants = true
+
+local versionLabel = Instance.new("TextLabel")
+versionLabel.Parent = topRightInfo
+versionLabel.Size = UDim2.new(0, 80, 1, 0)
+versionLabel.Position = UDim2.new(0, 0, 0, 0)
+versionLabel.Text = "v1.0"
+versionLabel.Font = Enum.Font.SourceSans
+versionLabel.TextSize = 12
+versionLabel.TextColor3 = Color3.new(0.7, 0.7, 0.7)
+versionLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+versionLabel.BackgroundTransparency = 1
+versionLabel.TextXAlignment = Enum.TextXAlignment.Right
+versionLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+local timeLabel = Instance.new("TextLabel")
+timeLabel.Parent = topRightInfo
+timeLabel.Size = UDim2.new(0, 80, 1, 0)
+timeLabel.Position = UDim2.new(0, 85, 0, 0)
+timeLabel.Text = "00:00:00"
+timeLabel.Font = Enum.Font.SourceSans
+timeLabel.TextSize = 12
+timeLabel.TextColor3 = Color3.new(1, 1, 1)
+timeLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+timeLabel.BackgroundTransparency = 1
+timeLabel.TextXAlignment = Enum.TextXAlignment.Right
+timeLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+local pingLabel = Instance.new("TextLabel")
+pingLabel.Parent = topRightInfo
+pingLabel.Size = UDim2.new(0, 50, 1, 0)
+pingLabel.Position = UDim2.new(0, 170, 0, 0)
+pingLabel.Text = "Ping: 0"
+pingLabel.Font = Enum.Font.SourceSans
+pingLabel.TextSize = 12
+pingLabel.TextColor3 = Color3.new(1, 1, 1)
+pingLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+pingLabel.BackgroundTransparency = 1
+pingLabel.TextXAlignment = Enum.TextXAlignment.Right
+pingLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Parent = topRightInfo
+fpsLabel.Size = UDim2.new(0, 50, 1, 0)
+fpsLabel.Position = UDim2.new(0, 225, 0, 0)
+fpsLabel.Text = "FPS: 0"
+fpsLabel.Font = Enum.Font.SourceSans
+fpsLabel.TextSize = 12
+fpsLabel.TextColor3 = Color3.new(1, 1, 1)
+fpsLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.TextXAlignment = Enum.TextXAlignment.Right
+fpsLabel.TextYAlignment = Enum.TextYAlignment.Center
+fpsLabel.Visible = false
+
+local closeButton = Instance.new("TextButton")
+closeButton.Parent = topRightInfo
+closeButton.Size = UDim2.new(0, 20, 0, 20)
+closeButton.Position = UDim2.new(1, -25, 0, 0)
+closeButton.Text = "x"
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.TextSize = 14
+closeButton.TextColor3 = Color3.new(1, 1, 1)
+closeButton.BackgroundColor3 = Color3.new(1, 0, 0)
+closeButton.BackgroundTransparency = 0.5
+closeButton.BorderSizePixel = 0
+closeButton.AnchorPoint = Vector2.new(1, 0)
+
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Parent = topRightInfo
+minimizeButton.Size = UDim2.new(0, 20, 0, 20)
+minimizeButton.Position = UDim2.new(1, -50, 0, 0)
+minimizeButton.Text = "-"
+minimizeButton.Font = Enum.Font.SourceSansBold
+minimizeButton.TextSize = 14
+minimizeButton.TextColor3 = Color3.new(1, 1, 1)
+minimizeButton.BackgroundColor3 = Color3.new(0, 0.5, 1)
+minimizeButton.BackgroundTransparency = 0.5
+minimizeButton.BorderSizePixel = 0
+minimizeButton.AnchorPoint = Vector2.new(1, 0)
+
+local profileFrame = Instance.new("Frame")
+profileFrame.Parent = mainFrame
+profileFrame.Size = UDim2.new(0, 200, 0, 50)
+profileFrame.Position = UDim2.new(0, 0, 1, -50)
+profileFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+profileFrame.BackgroundTransparency = 0.5
+
+local playerNickLabel = Instance.new("TextLabel")
+playerNickLabel.Parent = profileFrame
+playerNickLabel.Size = UDim2.new(1, 0, 0.5, 0)
+playerNickLabel.Position = UDim2.new(0, 0, 0, 0)
+playerNickLabel.Text = "Игрок: " .. game.Players.LocalPlayer.Name
+playerNickLabel.Font = Enum.Font.SourceSans
+playerNickLabel.TextSize = 14
+playerNickLabel.TextColor3 = Color3.new(1, 1, 1)
+playerNickLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+playerNickLabel.BackgroundTransparency = 1
+playerNickLabel.TextXAlignment = Enum.TextXAlignment.Left
+playerNickLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+local serverTimeLabel = Instance.new("TextLabel")
+serverTimeLabel.Parent = profileFrame
+serverTimeLabel.Size = UDim2.new(1, 0, 0.5, 0)
+serverTimeLabel.Position = UDim2.new(0, 0, 0.5, 0)
+serverTimeLabel.Text = "Время: " .. os.date("%H:%M:%S", os.time())
+serverTimeLabel.Font = Enum.Font.SourceSans
+serverTimeLabel.TextSize = 12
+serverTimeLabel.TextColor3 = Color3.new(0.8, 0.8, 0.8)
+serverTimeLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+serverTimeLabel.BackgroundTransparency = 1
+serverTimeLabel.TextXAlignment = Enum.TextXAlignment.Left
+serverTimeLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+local profileSeparator = Instance.new("Frame")
+profileSeparator.Parent = mainFrame
+profileSeparator.Size = UDim2.new(1, 0, 0, 1)
+profileSeparator.Position = UDim2.new(0, 0, 1, -55)
+profileSeparator.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+
+local openButton = Instance.new("TextButton")
+openButton.Parent = screenGui
+openButton.Size = UDim2.new(0, 50, 0, 50)
+openButton.Position = UDim2.new(0.5, 0, 0.8, 0)
+openButton.Text = "+"
+openButton.Font = Enum.Font.SourceSansBold
+openButton.TextSize = 30
+openButton.TextColor3 = Color3.new(1, 1, 1)
+openButton.BackgroundColor3 = Color3.new(0, 0.5, 1)
+openButton.BackgroundTransparency = 0.5
+openButton.BorderSizePixel = 0
+openButton.Name = "OpenButton"
+
+local openButtonCorner = Instance.new("UICorner")
+openButtonCorner.Parent = openButton
+openButtonCorner.CornerRadius = UDim.new(0, 25)
+
+openButton.Visible = false
+
+mainFrame.Draggable = true
+openButton.Draggable = true
+
+-- Новые переменные для вкладок
+local tabs = {
+    { name = "Главная", content = nil }, -- content будет Frame, который мы будем показывать/скрывать
+    { name = "Настройки", content = nil },
+    { name = "Персонаж", content = nil },
+    { name = "Оружие", content = nil },
+    { name = "Тесты", content = nil },
+}
+local selectedTab = nil
+local tabButtons = {}
+
+-- Функция для создания вкладки
+local function createTabButton(tabData)
+    local button = Instance.new("TextButton")
+    button.Parent = leftPanel
+    button.Size = UDim2.new(1, 0, 0, 30)
+    button.Position = UDim2.new(0, 0, 0, #tabButtons * 30) -- Располагаем кнопки вертикально
+    button.Text = tabData.name
+    button.Font = Enum.Font.SourceSansBold
+    button.TextSize = 14
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    button.BackgroundTransparency = 0
+    button.BorderSizePixel = 0
+    button.TextXAlignment = Enum.TextXAlignment.Left
+    button.TextYAlignment = Enum.TextYAlignment.Center
+
+    -- Создаем рамку для контента вкладки, она будет создаваться сразу, но показываться только при выборе вкладки
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Parent = rightPanel
+    contentFrame.Size = UDim2.new(1, 0, 1, 0)
+    contentFrame.Position = UDim2.new(0, 0, 0, 0)
+    contentFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    contentFrame.BackgroundTransparency = 0
+    contentFrame.Visible = false -- Скрываем содержимое по умолчанию
+    tabData.content = contentFrame -- Сохраняем Frame в данных вкладки
+
+    -- Стиль для выбранной вкладки
+    local function selectTabStyle()
+        button.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
+    end
+
+    -- Стиль для невыбранной вкладки
+    local function deselectTabStyle()
+        button.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    end
+
+    -- Обработчик нажатия на вкладку
+    button.MouseButton1Click:Connect(function()
+        if selectedTab ~= button then
+            if selectedTab then
+                -- Сбрасываем стиль предыдущей выбранной вкладки
+                local previousTabIndex = table.find(tabButtons, selectedTab)
+                if previousTabIndex then
+                    deselectTabStyle(tabButtons[previousTabIndex])
+                    tabs[previousTabIndex].content.Visible = false -- Скрываем содержимое предыдущей вкладки
+                end
+            end
+            selectedTab = button
+            selectTabStyle()
+            tabData.content.Visible = true -- Показываем содержимое текущей вкладки
+        end
+    end)
+
+    table.insert(tabButtons, button)
+    return button
+end
+
+-- Создаем кнопки для каждой вкладки
+for i, tabData in ipairs(tabs) do
+    createTabButton(tabData)
+end
+
+-- Выбираем первую вкладку по умолчанию
+if #tabButtons > 0 then
+    tabButtons[1].MouseButton1Click:Fire() -- Симулируем клик по первой вкладке
+end
+
+-- Функции для обновления времени, пинга и FPS (как в предыдущем коде)
+local function updateTime()
+    if timeLabel and timeLabel.Parent then
+        timeLabel.Text = "Время: " .. os.date("%H:%M:%S", os.time())
+    end
+end
+
+local function updatePing()
+    local player = game:GetService("Players").LocalPlayer
+    if player then
+        local ping = player.Ping
+        if pingLabel and pingLabel.Parent then
+            pingLabel.Text = "Пинг: " .. math.floor(ping)
+        end
+    end
+end
+
+local lastTime = os.clock()
+local frameCount = 0
+local function updateFPS()
+    local deltaTime = os.clock() - lastTime
+    frameCount = frameCount + 1
+    if deltaTime >= 1 then
+        if fpsLabel and fpsLabel.Parent then
+            fpsLabel.Text = "FPS: " .. math.floor(frameCount / deltaTime)
+        end
+        lastTime = os.clock()
+        frameCount = 0
+    end
+end
+
+game:GetService("RunService").Heartbeat:Connect(function()
+    updateTime()
+    updatePing()
+    updateFPS()
+end)
+
+-- Обработчики нажатий на кнопки закрытия и минимизации (как в предыдущем коде)
+closeButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
+    openButton.Visible = true
+end)
+
+minimizeButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
+    openButton.Visible = true
+end)
+
+openButton.MouseButton1Click:Connect(function()
+    openButton.Visible = false
+    mainFrame.Visible = true
+
+    local tweenService = game:GetService("TweenService")
+    local startSize = openButton.Size
+    local startPosition = openButton.Position
+    local endSize = mainFrame.Size
+    local endPosition = mainFrame.Position
+
+    local tweenInfo = TweenInfo.new(
+        0.5,
+        Enum.EasingStyle.Quad,
+        Enum.EasingDirection.Out,
+        0,
+        false,
+        0
+    )
+
+    local sizeTween = tweenService:Create(openButton, tweenInfo, {Size = endSize, Position = endPosition})
+    sizeTween:Play()
+
+    sizeTween.Completed:Connect(function()
+        openButton.Size = startSize
+        openButton.Position = startPosition
+    end)
+end)
+
+-- Функция для создания кнопки
+local function createButton(params)
+    local button = Instance.new("TextButton")
+    button.Parent = params.parent
+    button.Size = params.size or UDim2.new(0, 150, 0, 30)
+    button.Position = params.position or UDim2.new(0, 0, 0, 0)
+    button.Text = params.text or "Кнопка"
+    button.Font = params.font or Enum.Font.SourceSansBold
+    button.TextSize = params.textSize or 14
+    button.TextColor3 = params.textColor or Color3.new(1, 1, 1)
+    button.BackgroundColor3 = params.backgroundColor or Color3.new(0.2, 0.2, 0.2)
+    button.BackgroundTransparency = params.backgroundTransparency or 0
+    button.BorderSizePixel = params.borderSizePixel or 0
+    button.AnchorPoint = params.anchorPoint or Vector2.new(0, 0)
+    button.TextXAlignment = params.textXAlignment or Enum.TextXAlignment.Center
+    button.TextYAlignment = params.textYAlignment or Enum.TextYAlignment.Center
+
+    local uicorner = Instance.new("UICorner")
+    uicorner.Parent = button
+    uicorner.CornerRadius = params.cornerRadius or UDim.new(0, 5)
+
+    -- Анимация при нажатии
+    button.MouseButton1Down:Connect(function()
+        button:TweenSizeAndPosition(button.Size * 0.95, button.Position + UDim2.new(0, 2, 0, 2), 0.1)
+        -- Генерация частиц (квадратиков)
+        local emitter = Instance.new("ParticleEmitter")
+        emitter.Parent = button
+        emitter.Size = NumberSequence.new(0, 5)
+        emitter.Speed = NumberRange.new(5, 10)
+        emitter.Lifetime = NumberRange.new(0.1, 0.3)
+        emitter.Rate = 20
+        emitter.Texture = "rbxasset://textures/particles/Square_Matte.png" -- Квадратная текстура
+        emitter.Color = ColorSequence.new(params.textColor or Color3.new(1, 1, 1))
+        emitter:Emit(10) -- Количество частиц
+        game:GetService("Debris"):AddItem(emitter, 1) -- Автоматическое удаление
+    end)
+
+    button.MouseButton1Up:Connect(function()
+        button:TweenSizeAndPosition(button.Size, button.Position, 0.1)
+    end)
+
+    if params.callback then
+        button.MouseButton1Click:Connect(params.callback)
+    end
+
+    return button
+end
+
+-- Функция для создания дропдауна
+local function createDropdown(params)
+    local dropdown = Instance.new("Frame")
+    dropdown.Parent = params.parent
+    dropdown.Size = params.size or UDim2.new(0, 150, 0, 30)
+    dropdown.Position = params.position or UDim2.new(0, 0, 0, 0)
+    dropdown.BackgroundColor3 = params.backgroundColor or Color3.new(0.2, 0.2, 0.2)
+    dropdown.BackgroundTransparency = params.backgroundTransparency or 0
+    dropdown.BorderSizePixel = params.borderSizePixel or 0
+    dropdown.AnchorPoint = params.anchorPoint or Vector2.new(0, 0)
+    dropdown.Name = "Dropdown"
+
+    local uicorner = Instance.new("UICorner")
+    uicorner.Parent = dropdown
+    uicorner.CornerRadius = params.cornerRadius or UDim.new(0, 5)
+
+    local label = Instance.new("TextLabel")
+    label.Parent = dropdown
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.Position = UDim2.new(0, 0, 0, 0)
+    label.Text = params.placeholder or "Выберите опцию"
+    label.Font = params.font or Enum.Font.SourceSans
+    label.TextSize = params.textSize or 14
+    label.TextColor3 = params.textColor or Color3.new(0.8, 0.8, 0.8)
+    label.BackgroundColor3 = Color3.new(1, 1, 1)
+    label.BackgroundTransparency = 1
+    label.TextXAlignment = params.textXAlignment or Enum.TextXAlignment.Left
+    label.TextYAlignment = params.textYAlignment or Enum.TextYAlignment.Center
+    label.Name = "DropdownLabel"
+    label.Padding = UDim.new(0, 5, 0, 0)
+
+    local arrow = Instance.new("TextLabel")
+    arrow.Parent = dropdown
+    arrow.Size = UDim2.new(0, 20, 1, 0)
+    arrow.Position = UDim2.new(1, -20, 0, 0)
+    arrow.Text = "▼"
+    arrow.Font = params.font or Enum.Font.SourceSans
+    arrow.TextSize = 14
+    arrow.TextColor3 = params.textColor or Color3.new(0.8, 0.8, 0.8)
+    arrow.BackgroundColor3 = Color3.new(1, 1, 1)
+    arrow.BackgroundTransparency = 1
+    arrow.TextXAlignment = Enum.TextXAlignment.Center
+    arrow.TextYAlignment = Enum.TextYAlignment.Center
+    arrow.Name = "DropdownArrow"
+
+    local optionsFrame = Instance.new("Frame")
+    optionsFrame.Parent = dropdown
+    optionsFrame.Size = UDim2.new(1, 0, 0, 0)
+    optionsFrame.Position = UDim2.new(0, 0, 1, 0)
+    optionsFrame.BackgroundColor3 = params.backgroundColor or Color3.new(0.2, 0.2, 0.2)
+    optionsFrame.BackgroundTransparency = params.backgroundTransparency or 0
+    optionsFrame.BorderSizePixel = params.borderSizePixel or 0
+    optionsFrame.ClipsDescendants = true
+    optionsFrame.Visible = false
+    optionsFrame.Name = "DropdownOptions"
+
+    local scroll = Instance.new("ScrollingFrame")
+    scroll.Parent = optionsFrame;
+    scroll.Size = UDim2.new(1, 0, 1, 0);
+    scroll.Position = UDim2.new(0, 0, 0, 0);
+    scroll.CanvasSize = UDim2.new(1, 0, 0, 0);
+    scroll.BackgroundColor3 =  Color3.new(1,1,1);
+    scroll.BackgroundTransparency = 1;
+    scroll.ScrollBarThickness = 5;
+    scroll.Name = "DropdownScroll"
+
+    local options = params.options or {}
+    local optionButtons = {}
+    local selectedOption = nil
+
+    local function updateLabel()
+        if selectedOption then
+            label.Text = selectedOption.Text
+            label.TextColor3 = params.textColor or Color3.new(1,1,1)
+        else
+            label.Text = params.placeholder or "Выберите опцию"
+            label.TextColor3 = Color3.new(0.8, 0.8, 0.8)
+        end
+    end
+
+    local function createOptionButton(option, index)
+        local optionButton = Instance.new("TextButton")
+        optionButton.Parent = scroll
+        optionButton.Size = UDim2.new(1, 0, 0, 30)
+        optionButton.Position = UDim2.new(0, 0, 0, (index - 1) * 30)
+        optionButton.Text = option.text
+        optionButton.Font = params.font or Enum.Font.SourceSans
+        optionButton.TextSize = params.textSize or 14
+        optionButton.TextColor3 = params.textColor or Color3.new(1, 1, 1)
+        optionButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+        optionButton.BackgroundTransparency = 0
+        optionButton.BorderSizePixel = 0
+        optionButton.TextXAlignment = params.textXAlignment or Enum.TextXAlignment.Left
+        optionButton.TextYAlignment = Enum.TextYAlignment.Center
+        optionButton.Name = "DropdownOption"
+        optionButton.ZIndex = 5
+
+        local uicorner = Instance.new("UICorner")
+        uicorner.Parent = optionButton
+        uicorner.CornerRadius = UDim.new(0, 5)
+
+        optionButton.MouseButton1Click:Connect(function()
+            selectedOption = option
+            updateLabel()
+            optionsFrame.Size = UDim2.new(1, 0, 0, 0)
+            optionsFrame.Visible = false
+            if params.callback then
+                params.callback(option.value)
+            end
+        end)
+
+        table.insert(optionButtons, optionButton)
+        return optionButton
+    end
+
+    for i, option in ipairs(options) do
+        createOptionButton(option, i)
+    end
+
+    local isExpanded = false
+    dropdown.MouseButton1Click:Connect(function()
+        isExpanded = not isExpanded
+        if isExpanded then
+            optionsFrame.Size = UDim2.new(1, 0, 0, #options * 30) -- Раскрываем на высоту опций
+            optionsFrame.Visible = true
+            label.TextColor3 = params.textColor or Color3.new(1,1,1)
+        else
+            optionsFrame.Size = UDim2.new(1, 0, 0, 0)
+            optionsFrame.Visible = false
+            label.TextColor3 = selectedOption and params.textColor or Color3.new(0.8, 0.8, 0.8)
+        end
+    end)
+
+    updateLabel()
+    return dropdown
+end
+
+-- Функция для создания тоггла
+local function createToggle(params)
+    local toggle = Instance.new("Frame")
+    toggle.Parent = params.parent
+    toggle.Size = params.size or UDim2.new(0, 50, 0, 20)
+    toggle.Position = params.position or UDim2.new(0, 0, 0, 0)
+    toggle.BackgroundColor3 = params.backgroundColor or Color3.new(0.2, 0.2, 0.2)
+    toggle.BackgroundTransparency = params.backgroundTransparency or 0
+    toggle.BorderSizePixel = params.borderSizePixel or 0
+    toggle.AnchorPoint = params.anchorPoint or Vector2.new(0, 0)
+    toggle.Name = "Toggle"
+
+    local uicorner = Instance.new("UICorner")
+    uicorner.Parent = toggle
+    uicorner.CornerRadius = UDim.new(0, 10)
+
+    local track = Instance.new("Frame")
+    track.Parent = toggle
+    track.Size = UDim2.new(1, 0, 0.5, 0)
+    track.Position = UDim2.new(0, 0, 0.25, 0)
+    track.BackgroundColor3 = params.trackColor or Color3.new(0.5, 0.5, 0.5)
+    track.BorderSizePixel = 0
+    track.Name = "ToggleTrack"
+
+    local indicator = Instance.new("Frame")
+    indicator.Parent = toggle
+    indicator.Size = UDim2.new(0.5, 0, 1, 0)
+    indicator.Position = UDim2.new(0, 0, 0, 0)
+    indicator.BackgroundColor3 = params.indicatorColor or Color3.new(1, 1, 1)
+    indicator.BorderSizePixel = 0
+    indicator.Name = "ToggleIndicator"
+
+    local indicatorCorner = Instance.new("UICorner")
+    indicatorCorner.Parent = indicator;
+    indicatorCorner.CornerRadius = UDim.new(0, 10);
+
+    local label = Instance.new("TextLabel")
+    label.Parent = toggle
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.Position = UDim2.new(0, 0, 0, 0)
+    label.Text = params.text or "Текст переключателя"
+    label.Font = params.font or Enum.Font.SourceSans
+    label.TextSize = params.textSize or 14
+    label.TextColor3 = params.textColor or Color3.new(1, 1, 1)
+    label.BackgroundColor3 = Color3.new(1, 1, 1)
+    label.BackgroundTransparency = 1
+    label.TextXAlignment = params.textXAlignment or Enum.TextXAlignment.Left
+    label.TextYAlignment = params.textYAlignment or Enum.TextYAlignment.Center
+    label.Padding = UDim.new(0, 60, 0, 0)
+    label.Name = "ToggleLabel"
+
+    local isToggled = params.defaultToggled or false
+    local function updateState()
+        if isToggled then
+            indicator:TweenPosition(UDim2.new(0.5, 0, 0, 0), Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0.2, false)
+            track.BackgroundColor3 = params.trackColorToggled or Color3.new(0, 0.7, 0)
+        else
+            indicator:TweenPosition(UDim2.new(0, 0, 0, 0), Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0.2, false)
+            track.BackgroundColor3 = params.trackColor or Color3.new(0.5, 0.5, 0.5)
+        end
+    end
+
+    updateState()
+
+    toggle.MouseButton1Click:Connect(function()
+        isToggled = not isToggled
+        updateState()
+        if params.callback then
+            params.callback(isToggled)
+        end
+    end)
+
+    return toggle
+end
+
+-- Функция для создания слайдера
+local function createSlider(params)
+    local slider = Instance.new("Frame")
+    slider.Parent = params.parent
+    slider.Size = params.size or UDim2.new(0, 200, 0, 20)
+    slider.Position = params.position or UDim2.new(0, 0, 0, 0)
+    slider.BackgroundColor3 = params.backgroundColor or Color3.new(0.2, 0.2, 0.2)
+    slider.BackgroundTransparency = params.backgroundTransparency or 0
+    slider.BorderSizePixel = params.borderSizePixel or 0
+    slider.AnchorPoint = params.anchorPoint or Vector2.new(0, 0)
+    slider.Name = "Slider"
+
+    local uicorner = Instance.new("UICorner")
+    uicorner.Parent = slider
+    uicorner.CornerRadius = params.cornerRadius or UDim.new(0, 5)
+
+    local track = Instance.new("Frame")
+    track.Parent = slider
+    track.Size = UDim2.new(1, 0, 0.5, 0)
+    track.Position = UDim2.new(0, 0, 0.25, 0)
+    track.BackgroundColor3 = params.trackColor or Color3.new(0.5, 0.5, 0.5)
+    track.BorderSizePixel = 0
+    track.Name = "SliderTrack"
+
+    local fill = Instance.new("Frame")
+    fill.Parent = slider
+    fill.Size = UDim2.new(0, 0, 0.5, 0)
+    fill.Position = UDim2.new(0, 0, 0.25, 0)
+    fill.BackgroundColor3 = params.fillColor or Color3.new(0, 0.7, 0)
+    fill.BorderSizePixel = 0
+    fill.Name = "SliderFill"
+
+    local thumb = Instance.new("Frame")
+    thumb.Parent = slider
+    thumb.Size = UDim2.new(0, 20, 1, 0)
+    thumb.Position = UDim2.new(0, 0, 0, 0)
+    thumb.BackgroundColor3 = params.thumbColor or Color3.new(1, 1, 1)
+    thumb.BorderSizePixel = 0
+    thumb.BorderSizePixel = 1
+    thumb.BorderColor3 = Color3.new(0,0,0)
+    thumb.Name = "SliderThumb"
+    thumb.ZIndex = 2
+
+    local thumbCorner = Instance.new("UICorner")
+    thumbCorner.Parent = thumb
+    thumbCorner.CornerRadius = UDim.new(0, 10)
+
+    local label = Instance.new("TextLabel")
+    label.Parent = slider
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.Position = UDim2.new(0, 0, 0, 0)
+    label.Text = params.text or "Значение слайдера: 0"
+    label.Font = params.font or Enum.Font.SourceSans
+    label.TextSize = params.textSize or 14
+    label.TextColor3 = params.textColor or Color3.new(1, 1, 1)
+    label.BackgroundColor3 = Color3.new(1, 1, 1)
+    label.BackgroundTransparency = 1
+    label.TextXAlignment = params.textXAlignment or Enum.TextXAlignment.Left
+    label.TextYAlignment = params.textYAlignment or Enum.TextYAlignment.Center
+    label.Padding = UDim.new(0, 25, 0, 0)
+    label.Name = "SliderLabel"
+
+    local valueLabel = Instance.new("TextLabel")
+    valueLabel.Parent = slider
+    valueLabel.Size = UDim2.new(0, 40, 0, 20)
+    valueLabel.Position = UDim2.new(1, -45, 0, 0)
+    valueLabel.Text = "0"
+    valueLabel.Font = params.font or Enum.Font.SourceSans
+    valueLabel.TextSize = 12
+    valueLabel.TextColor3 = Color3.new(1, 1, 1)
+    valueLabel.BackgroundColor3 = Color3.new(0,0,0)
+    valueLabel.BackgroundTransparency = 0
+    valueLabel.TextXAlignment = Enum.TextXAlignment.Center
+    valueLabel.TextYAlignment = Enum.TextYAlignment.Center
+    valueLabel.BorderSizePixel = 1
+    valueLabel.BorderColor3 = Color3.new(0,0,0)
+    valueLabel.Name = "SliderValueLabel"
+
+    local min = params.min or 0
+    local max = params.max or 100
+    local step = params.step or 1
+    local value = params.value or min
+
+    local function updateValue(newValue)
+        value = math.clamp(newValue, min, max)
+        local percentage = (value - min) / (max - min)
+        fill:TweenSize(UDim2.new(percentage, 0, 0.5, 0), Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0.1, false)
+        thumb.Position = UDim2.new(percentage, 0, 0, 0)
+        label.Text = string.format(params.text or "Значение слайдера: %.0f", value)
+        valueLabel.Text = string.format("%.0f",value)
+        if params.callback then
+            params.callback(value)
+        end
+    end
+
+    updateValue(value)
+
+    local isDragging = false
+    local dragStartPos = 0
+    local function onDrag(input)
+        if input.UserInputType == Enum.UserInputType.Mouse then
+            local deltaX = input.Position.X - dragStartPos
+            local sliderWidth = slider.AbsoluteSize.X
+            local valuePerPixel = (max - min) / sliderWidth
+            local newValue = value + deltaX * valuePerPixel
+            updateValue(newValue)
+            dragStartPos = input.Position.X
+        end
+    end
+
+    thumb.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Mouse then
+            isDragging = true
+            dragStartPos = input.Position.X
+            game:GetService("UserInputService").InputChanged:Connect(onDrag)
+        end
+    end)
+
+    thumb.InputEnded:Connect(function()
+        isDragging = false
+        game:GetService("UserInputService").InputChanged:Disconnect(onDrag)
+    end)
+
+    slider.MouseButton1Down:Connect(function(pos)
+        local xPos = pos.Position.X - slider.AbsolutePosition.X
+        local sliderWidth = slider.AbsoluteSize.X
+        local valuePerPixel = (max - min) / sliderWidth
+        local newValue = min + xPos * valuePerPixel
+        updateValue(newValue)
+    end)
+
+    return slider
+end
+
+-- Функция для создания текстбокса
+local function createTextBox(params)
+    local textBox = Instance.new("TextBox")
+    textBox.Parent = params.parent
+    textBox.Size = params.size or UDim2.new(0, 200, 0, 30)
+    textBox.Position = params.position or UDim2.new(0, 0, 0, 0)
+    textBox.PlaceholderText = params.placeholder or "Введите текст..."
+    textBox.Font = params.font or Enum.Font.SourceSans
+    textBox.TextSize = params.textSize or 14
+    textBox.TextColor3 = params.textColor or Color3.new(1, 1, 1)
+    textBox.BackgroundColor3 = params.backgroundColor or Color3.new(0.2, 0.2, 0.2)
+    textBox.BackgroundTransparency = params.backgroundTransparency or 0
+    textBox.BorderSizePixel = params.borderSizePixel or 0
+    textBox.AnchorPoint = params.anchorPoint or Vector2.new(0, 0)
+    textBox.TextXAlignment = params.textXAlignment or Enum.TextXAlignment.Left
+    textBox.TextYAlignment = params.textYAlignment or Enum.TextYAlignment.Center
+    textBox.ClearTextOnFocus = params.clearTextOnFocus or false
+    textBox.Name = "TextBox"
+
+    local uicorner = Instance.new("UICorner")
+    uicorner.Parent = textBox
+    uicorner.CornerRadius = params.cornerRadius or UDim.new(0, 5)
+
+    if params.callback then
+        textBox.FocusedLost:Connect(function(input)
+            params.callback(textBox.Text)
+        end)
+    end
+
+    return textBox
+end
+
+-- Функция для создания колорпикера
+local function createColorPicker(params)
+    local colorPicker = Instance.new("Frame")
+    colorPicker.Parent = params.parent
+    colorPicker.Size = params.size or UDim2.new(0, 30, 0, 30)
+    colorPicker.Position = params.position or UDim2.new(0, 0, 0, 0)
+    colorPicker.BackgroundColor3 = params.color or Color3.new(1, 1, 1)
+    colorPicker.BackgroundTransparency = params.backgroundTransparency or 0
+    colorPicker.BorderSizePixel = params.borderSizePixel or 1
+    colorPicker.BorderColor3 = Color3.new(0,0,0)
+    colorPicker.AnchorPoint = params.anchorPoint or Vector2.new(0, 0)
+    colorPicker.Name = "ColorPicker"
+
+    local uicorner = Instance.new("UICorner")
+    uicorner.Parent = colorPicker
+    uicorner.CornerRadius = params.cornerRadius or UDim.new(0, 5)
+
+    local pickerFrame = Instance.new("Frame")
+    pickerFrame.Parent = colorPicker
+    pickerFrame.Size = UDim2.new(0, 200, 0, 200)
+    pickerFrame.Position = UDim2.new(1.2, 0, 0, 0)
+    pickerFrame.BackgroundColor3 = Color3.new(1, 1, 1)
+    pickerFrame.BorderSizePixel = 1
+    pickerFrame.BorderColor3 = Color3.new(0,0,0)
+    pickerFrame.Visible = false
+    pickerFrame.ZIndex = 10
+    pickerFrame.Name = "ColorPickerFrame"
+
+    local closeButton = createButton({
+        parent = pickerFrame,
+        size = UDim2.new(0, 20, 0, 20),
+        position = UDim2.new(1, -20, 0, 0),
+        text = "x",
+        textSize = 14,
+        callback = function()
+            pickerFrame.Visible = false
+        end
+    })
+    closeButton.AnchorPoint = Vector2.new(1,0)
+
+    local colorWheel = Instance.new("ImageLabel")
+    colorWheel.Parent = pickerFrame
+    colorWheel.Size = UDim2.new(1, 0, 1, 0)
+    colorWheel.Position = UDim2.new(0, 0, 0, 0)
+    colorWheel.Image = "rbxassetid://110773988" -- ID картинки цветового круга (может потребоваться замена)
+    colorWheel.BackgroundTransparency = 1
+    colorWheel.Name = "ColorWheel"
+    colorWheel.ScaleType = Enum.ScaleType.Fit
+
+     local selectedColor = params.color or Color3.new(1,1,1)
+
+    local function updateColor(newColor)
+        selectedColor = newColor
+        colorPicker.BackgroundColor3 = newColor
+        if params.callback then
+            params.callback(newColor)
+        end
+    end
+
+    local isPicking = false
+        local function onColorPick(input)
+         if isPicking and input.UserInputType == Enum.UserInputType.Mouse then
+            local localPos = input.Position - colorWheel.AbsolutePosition
+            local radius = colorWheel.AbsoluteSize.X / 2
+            local center = Vector2.new(radius, radius)
+            local delta = localPos - center
+            local distance = delta.Magnitude
+            if distance <= radius then
+                local angle = math.atan2(delta.Y, delta.X)
+                local hue = (angle / math.pi + 1) / 2
+                local saturation = distance / radius
+                local value = 1
+                local color = Color3.fromHSV(hue, saturation, value)
+                updateColor(color)
+            end
+         end
+    end
+
+    colorWheel.InputBegan:Connect(function(input)
+        isPicking = true
+        onColorPick(input)
+        game:GetService("UserInputService").InputChanged:Connect(onColorPick)
+    end)
+
+    colorWheel.InputEnded:Connect(function()
+        isPicking = false
+        game:GetService("UserInputService").InputChanged:Disconnect(onColorPick)
+    end)
+
+    colorPicker.MouseButton1Click:Connect(function()
+        pickerFrame.Visible = not pickerFrame.Visible
+    end)
+
+    updateColor(selectedColor)
+
+    return colorPicker
+end
+
+-- Функция для создания лейбла
+local function createLabel(params)
+    local label = Instance.new("TextLabel")
+    label.Parent = params.parent
+    label.Size = params.size or UDim2.new(0, 100, 0, 20)
+    label.Position = params.position or UDim2.new(0, 0, 0, 0)
+    label.Text = params.text or "Лейбл"
+    label.Font = params.font or Enum.Font.SourceSans
+    label.TextSize = params.textSize or 14
+    label.TextColor3 = params.textColor or Color3.new(1, 1, 1)
+    label.BackgroundColor3 = params.backgroundColor or Color3.new(1, 1, 1)
+    label.BackgroundTransparency = params.backgroundTransparency or 1
+    label.TextXAlignment = params.textXAlignment or Enum.TextXAlignment.Left
+    label.TextYAlignment = params.TextYAlignment.Center
+    label.AnchorPoint = params.anchorPoint or Vector2.new(0, 0)
+    label.Name = "Label"
+
+    return label
+end
+
+-- Функция для создания параграфа
+local function createParagraph(params)
+    local paragraph = Instance.new("TextLabel")
+    paragraph.Parent = params.parent
+    paragraph.Size = params.size or UDim2.new(0, 200, 0, 100)
+    paragraph.Position = params.position or UDim2.new(0, 0, 0, 0)
+    paragraph.Text = params.text or "Это параграф. Его можно использовать для отображения длинного текста."
+    paragraph.Font = params.font or Enum.Font.SourceSans
+    paragraph.TextSize = params.textSize or 14
+    paragraph.TextColor3 = params.textColor or Color3.new(0.8, 0.8, 0.8)
+    paragraph.BackgroundColor3 = params.backgroundColor or Color3.new(1, 1, 1)
+    paragraph.BackgroundTransparency = params.backgroundTransparency or 1
+    paragraph.TextXAlignment = params.textXAlignment or Enum.TextXAlignment.Left
+    paragraph.TextYAlignment = Enum.TextYAlignment or Enum.TextYAlignment.Top
+    paragraph.TextWrapped = true
+    paragraph.AnchorPoint = params.anchorPoint or Vector2.new(0, 0)
+    paragraph.Name = "Paragraph"
+
+    return paragraph
+end
+
+--[[
+    Часть 3: Расширенные анимации и эффекты
+    В этой части мы добавим расширенные анимации и эффекты для улучшения визуального восприятия UI.
+--]]
+
+local tweenService = game:GetService("TweenService")
+
+-- Функция для создания эффекта свечения
+local function createGlowEffect(object, params)
+    local glow = Instance.new("UIGlow")
+    glow.Parent = object
+    glow.Size = params.size or 20
+    glow.Color = params.color or Color3.new(1, 1, 1)
+    glow.Transparency = params.transparency or 0
+    glow.Enabled = true
+
+    -- Анимация интенсивности свечения
+    if params.animate then
+        local function animateGlow()
+            local startTransparency = glow.Transparency
+            local endTransparency = 1 - startTransparency
+            local tween = tweenService:Create(
+                glow,
+                TweenInfo.new(params.speed or 1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, -1, true),
+                { Transparency = endTransparency }
+            )
+            tween:Play()
+        end
+        animateGlow()
+    end
+    return glow
+end
+
+-- Функция для создания эффекта тени
+local function createShadowEffect(object, params)
+    local shadow = Instance.new("UIDropShadow")
+    shadow.Parent = object
+    shadow.Distance = params.distance or 4
+    shadow.Size = params.size or 4
+    shadow.Color = params.color or Color3.new(0, 0, 0)
+    shadow.Transparency = params.transparency or 0.5
+    shadow.Offset = params.offset or Vector2.new(2, 2)
+    shadow.Enabled = true
+    return shadow
+end
+
+-- Функция для создания эффекта размытия фона
+local function createBlurEffect(object, params)
+    local blur = Instance.new("BlurEffect")
+    blur.Parent = object
+    blur.Size = params.size or 0
+    blur.Enabled = true
+
+     if params.animate then
+        local function animateBlur()
+            local startSize = blur.Size
+            local endSize = params.maxSize or 10
+            local tween = tweenService:Create(
+                blur,
+                TweenInfo.new(params.speed or 1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, -1, true),
+                { Size = endSize }
+            )
+            tween:Play()
+        end
+        animateBlur()
+    end
+    return blur
+end
+
+-- Анимация появления UI
+local function animateUIAppearance(mainFrame, openButton)
+    local tweenService = game:GetService("TweenService")
+
+    -- Начальные значения
+    local startSize = UDim2.new(0, 0, 0, 0)
+    local endSize = mainFrame.Size
+    local startPosition = UDim2.new(0.5, 0.5, 0.5, 0.5)  -- По центру экрана
+    local endPosition = mainFrame.Position
+
+    -- Создаем прозрачный фон за UI
+    local background = Instance.new("Frame")
+    background.Parent = mainFrame.Parent
+    background.Size = UDim2.new(1, 0, 1, 0)
+    background.Position = UDim2.new(0, 0, 0, 0)
+    background.BackgroundColor3 = Color3.new(0, 0, 0)
+    background.BackgroundTransparency = 1
+    background.ZIndex = mainFrame.ZIndex - 1
+    -- Применяем эффект размытия к фону
+    local blurBackground = createBlurEffect(background, {size = 0, maxSize = 10, speed = 0.5, animate = true})
+
+    -- Анимация появления фона
+    local backgroundTween = tweenService:Create(
+        background,
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        { BackgroundTransparency = 0.5 }
+    )
+    backgroundTween:Play()
+
+    -- Анимация появления "By SnowT Team"
+    local snowtLabel = Instance.new("TextLabel")
+    snowtLabel.Parent = mainFrame
+    snowtLabel.Size = UDim2.new(0, 200, 0, 30)
+    snowtLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
+    snowtLabel.Text = "By SnowT Team"
+    snowtLabel.Font = Enum.Font.SourceSansBold
+    snowtLabel.TextSize = 20
+    snowtLabel.TextColor3 = Color3.new(1, 1, 1)
+    snowtLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+    snowtLabel.BackgroundTransparency = 1
+    snowtLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+    snowtLabel.TextXAlignment = Enum.TextXAlignment.Center
+    snowtLabel.TextYAlignment = Enum.TextYAlignment.Center
+    snowtLabel.Visible = true
+    -- Применяем эффект свечения к тексту
+    local glowLabel = createGlowEffect(snowtLabel, {color = Color3.new(0, 1, 1), size = 10, animate = true})
+
+    local startX = -1
+    local endX = 0.5
+    snowtLabel.Position = UDim2.new(startX, 0, 0.5, 0)
+    local snowtTween = tweenService:Create(
+        snowtLabel,
+        TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        { Position = UDim2.new(endX, 0, 0.5, 0) }
+    )
+    snowtTween:Play()
+
+    -- Задержка перед началом анимации окна
+    wait(0.7)
+
+    -- Анимация увеличения окна
+    mainFrame.Size = startSize
+    mainFrame.Position = startPosition
+    mainFrame.Visible = true
+    local sizeTween = tweenService:Create(
+        mainFrame,
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        { Size = endSize, Position = endPosition }
+    )
+    sizeTween:Play()
+
+    -- Окно загрузки
+    local loadingFrame = Instance.new("Frame")
+    loadingFrame.Parent = mainFrame
+    loadingFrame.Size = UDim2.new(0.8, 0, 0.3, 0)
+    loadingFrame.Position = UDim2.new(0.1, 0, 0.7, 0)
+    loadingFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    loadingFrame.BackgroundTransparency = 0.8
+    loadingFrame.BorderSizePixel = 1
+    loadingFrame.BorderColor3 = Color3.new(0, 1, 1)
+    loadingFrame.Name = "LoadingFrame"
+    -- Применяем эффект тени к окну загрузки
+    local shadowLoading = createShadowEffect(loadingFrame, {distance = 8, size = 8, color = Color3.new(0,0,0), transparency = 0.7})
+
+    local loadingTitle = Instance.new("TextLabel")
+    loadingTitle.Parent = loadingFrame
+    loadingTitle.Size = UDim2.new(1, 0, 0.3, 0)
+    loadingTitle.Position = UDim2.new(0, 0, 0, 0)
+    loadingTitle.Text = "Loading Script"
+    loadingTitle.Font = Enum.Font.SourceSansBold
+    loadingTitle.TextSize = 16
+    loadingTitle.TextColor3 = Color3.new(1, 1, 1)
+    loadingTitle.BackgroundColor3 = Color3.new(1, 1, 1)
+    loadingTitle.BackgroundTransparency = 1
+    loadingTitle.TextXAlignment = Enum.TextXAlignment.Center
+    loadingTitle.TextYAlignment = Enum.TextYAlignment.Center
+    loadingTitle.Name = "LoadingTitle"
+    -- Применяем эффект свечения к заголовку загрузки
+    local glowTitle = createGlowEffect(loadingTitle, {color = Color3.new(0.5, 1, 0.5), size = 5, animate = true})
+
+    local loadingText = Instance.new("TextLabel")
+    loadingText.Parent = loadingFrame
+    loadingText.Size = UDim2.new(1, 0, 0.3, 0)
+    loadingText.Position = UDim2.new(0, 0, 0.3, 0)
+    loadingText.Text = "Loading UI"
+    loadingText.Font = Enum.Font.SourceSans
+    loadingText.TextSize = 14
+    loadingText.TextColor3 = Color3.new(1, 1, 1)
+    loadingText.BackgroundColor3 = Color3.new(1, 1, 1)
+    loadingText.BackgroundTransparency = 1
+    loadingText.TextXAlignment = Enum.TextXAlignment.Center
+    loadingText.TextYAlignment = Enum.TextYAlignment.Center
+    loadingText.Name = "LoadingText"
+
+    local progressBar = Instance.new("Frame")
+    progressBar.Parent = loadingFrame
+    progressBar.Size = UDim2.new(0, 0, 0.1, 0)
+    progressBar.Position = UDim2.new(0, 0, 0.65, 0)
+    progressBar.BackgroundColor3 = Color3.new(0, 0.7, 1)
+    progressBar.BorderSizePixel = 0
+    progressBar.Name = "ProgressBar"
+    progressBar.ZIndex = 5
+
+    local progressBackground = Instance.new("Frame")
+    progressBackground.Parent = loadingFrame
+    progressBackground.Size = UDim2.new(1, 0, 0.1, 0)
+    progressBackground.Position = UDim2.new(0, 0, 0.65, 0)
+    progressBackground.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    progressBackground.BorderSizePixel = 1
+    progressBackground.BorderColor3 = Color3.new(0, 1, 1)
+    progressBackground.Name = "ProgressBackground"
+    progressBackground.ZIndex = 4
+
+    local progressText = Instance.new("TextLabel")
+    progressText.Parent = loadingFrame
+    progressText.Size = UDim2.new(1, 0, 0.1, 0)
+    progressText.Position = UDim2.new(0, 0, 0.65, 0)
+    progressText.Text = "0%"
+    progressText.Font = Enum.Font.SourceSans
+    progressText.TextSize = 12
+    progressText.TextColor3 = Color3.new(1, 1, 1)
+    progressText.BackgroundColor3 = Color3.new(1, 1, 1)
+    progressText.BackgroundTransparency = 1
+    progressText.TextXAlignment = Enum.TextXAlignment.Center
+    progressText.TextYAlignment = Enum.TextYAlignment.Center
+    progressText.Name = "ProgressText"
+    progressText.ZIndex = 6
+
+    -- Градиентная обводка для loadingFrame
+    local loadingBorderGradient = Instance.new("UIGradient")
+    loadingBorderGradient.Parent = loadingFrame
+    loadingBorderGradient.Rotation = 90
+    loadingBorderGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.new(0, 1, 1)),
+        ColorSequenceKeypoint.new(1, Color3.new(0, 0.5, 0))
+    })
+    loadingBorderGradient.Name = "LoadingBorderGradient"
+
+    -- Функция для обновления состояния загрузки
+    local function updateLoadingState(text, progress)
+        loadingText.Text = string.format("%.0f%%", progress)
+        loadingText.TextColor3 = Color3.new(1,1,1)
+        progressBar:TweenSize(UDim2.new(progress / 100, 0, 0.1, 0), Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0.1, false)
+        loadingText.Text = text
+    end
+
+    -- Пример последовательности загрузки
+    wait(0.5)
+    updateLoadingState("Loading UI", 20)
+    wait(0.5)
+    updateLoadingState("Loading Tabs", 40)
+     wait(0.5)
+    updateLoadingState("Loading UI elements", 60)
+    wait(0.5)
+    updateLoadingState("Loading Effects", 80)
+    wait(0.5)
+    updateLoadingState("Loading Functions", 90)
+    wait(0.5)
+    updateLoadingState("Loading Themes", 95)
+    wait(0.5)
+    updateLoadingState("Finished", 100)
+
+    -- Анимация исчезновения окна загрузки и "By SnowT Team"
+    wait(0.5)
+    local fadeOutTween = tweenService:Create(
+        loadingFrame,
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        { BackgroundTransparency = 1, TextTransparency = 1 }
+    )
+    local fadeOutTween2 = tweenService:Create(
+        snowtLabel,
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        { TextTransparency = 1 }
+    )
+    fadeOutTween:Play()
+    fadeOutTween2:Play()
+
+    fadeOutTween.Completed:Connect(function()
+        loadingFrame:Destroy()
+        snowtLabel:Destroy()
+        background:Destroy()
+        openButton.Visible = true
+    end)
+end
+
+-- Анимация закрытия UI
+local function animateUIClose(mainFrame, openButton)
+    local tweenService = game:GetService("TweenService")
+    local startSize = mainFrame.Size
+    local startPosition = mainFrame.Position
+    local endSize = UDim2.new(0, 0, 0, 0)
+    local endPosition = UDim2.new(0.5, 0.5, 0.5, 0.5)
+
+     -- Создаем прозрачный фон за UI
+    local background = Instance.new("Frame")
+    background.Parent = mainFrame.Parent
+    background.Size = UDim2.new(1, 0, 1, 0)
+    background.Position = UDim2.new(0, 0, 0, 0)
+    background.BackgroundColor3 = Color3.new(0, 0, 0)
+    background.BackgroundTransparency = 0.5
+    background.ZIndex = mainFrame.ZIndex - 1
+
+    local bgTween = tweenService:Create(
+        background,
+        TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+        {BackgroundTransparency = 1}
+    )
+    bgTween:Play()
+
+    local sizeTween = tweenService:Create(
+        mainFrame,
+        TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+        { Size = endSize, Position = endPosition }
+    )
+    sizeTween:Play()
+
+    sizeTween.Completed:Connect(function()
+        mainFrame.Visible = false
+        openButton.Visible = true
+        mainFrame.Size = startSize
+        mainFrame.Position = startPosition
+        background:Destroy()
+    end)
+end
+
+-- Анимация кнопок при нажатии (уже реализовано в createButton, но можно вынести отдельно для удобства)
+local function animateButtonPress(button)
+    button.MouseButton1Down:Connect(function()
+        button:TweenSizeAndPosition(button.Size * 0.95, button.Position + UDim2.new(0, 2, 0, 2), 0.1)
+         -- Генерация частиц (квадратиков)
+        local emitter = Instance.new("ParticleEmitter")
+        emitter.Parent = button
+        emitter.Size = NumberSequence.new(0, 5)
+        emitter.Speed = NumberRange.new(5, 10)
+        emitter.Lifetime = NumberRange.new(0.1, 0.3)
+        emitter.Rate = 20
+        emitter.Texture = "rbxasset://textures/particles/Square_Matte.png" -- Квадратная текстура
+        emitter.Color = ColorSequence.new(button.TextColor3)
+        emitter:Emit(10) -- Количество частиц
+        game:GetService("Debris"):AddItem(emitter, 1) -- Автоматическое удаление
+    end)
+
+    button.MouseButton1Up:Connect(function()
+        button:TweenSizeAndPosition(button.Size, button.Position, 0.1)
+    end)
+end
+
+-- Анимация слайдера
+local function animateSlider(slider)
+    local fill = slider:FindFirstChild("SliderFill")
+    local thumb = slider:FindFirstChild("SliderThumb")
+    local valueLabel = slider:FindFirstChild("SliderValueLabel")
+    local track = slider:FindFirstChild("SliderTrack")
+
+    local function onValueChanged(newValue)
+        local min = slider.min or 0
+        local max = slider.max or 100
+        local percentage = (newValue - min) / (max - min)
+        fill:TweenSize(UDim2.new(percentage, 0, 0.5, 0), Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0.1, false)
+        thumb.Position = UDim2.new(percentage, 0, 0, 0)
+        valueLabel.Text = string.format("%.0f", newValue)
+        -- Подсветка полоски
+        track.BackgroundColor3 = Color3.new(0.8, 0.8, 0.8)
+        -- Генерация частиц
+        local emitter = Instance.new("ParticleEmitter")
+        emitter.Parent = slider
+        emitter.Size = NumberSequence.new(0, 3)
+        emitter.Speed = NumberRange.new(10, 20)
+        emitter.Lifetime = NumberRange.new(0.1, 0.2)
+        emitter.Rate = 10
+        emitter.Texture = "rbxasset://textures/particles/Square_Matte.png"
+        emitter.Color = ColorSequence.new(Color3.new(1, 1, 1))
+        emitter.Emit(5)
+        game:GetService("Debris"):AddItem(emitter, 0.5)
+        wait(0.2)
+        track.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
+    end
+
+    slider.callback = onValueChanged
+end
+
+-- Анимация тоггла
+local function animateToggle(toggle)
+    local indicator = toggle:FindFirstChild("ToggleIndicator")
+    local track = toggle:FindFirstChild("ToggleTrack")
+    local isToggled = toggle.defaultToggled or false
+
+    local function onToggleChanged(toggled)
+        isToggled = toggled
+        if isToggled then
+            indicator:TweenPosition(UDim2.new(0.5, 0, 0, 0), Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0.2, false)
+            track.BackgroundColor3 = toggle.trackColorToggled or Color3.new(0, 0.7, 0)
+        else
+            indicator:TweenPosition(UDim2.new(0, 0, 0, 0), Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0.2, false)
+            track.BackgroundColor3 = toggle.trackColor or Color3.new(0.5, 0.5, 0.5)
+        end
+        -- Переворот индикатора
+        local tweenService = game:GetService("TweenService")
+        local startRotation = isToggled and 0 or 180
+        local endRotation = isToggled and 180 or 0
+        local rotationTween = tweenService:Create(
+            indicator,
+            TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+            { Rotation = endRotation }
+        )
+        rotationTween:Play()
+    end
+    toggle.callback = onToggleChanged
+end
+
+-- Анимация дропдауна
+local function animateDropdown(dropdown)
+    local optionsFrame = dropdown:FindFirstChild("DropdownOptions")
+    local label = dropdown:FindFirstChild("DropdownLabel")
+    local isExpanded = false
+    dropdown.MouseButton1Click:Connect(function()
+        isExpanded = not isExpanded
+        if isExpanded then
+            optionsFrame:TweenSize(UDim2.new(1, 0, 0, #optionsFrame:GetChildren() * 30), Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0.3, false)
+            label.TextColor3 = Color3.new(1,1,1)
+        else
+            optionsFrame:TweenSize(UDim2.new(1, 0, 0, 0), Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0.3, false)
+             label.TextColor3 = label.Text == "Выберите опцию" and Color3.new(0.8,0.8,0.8) or Color3.new(1,1,1)
+        end
+    end)
+end
+
+-- Анимация колорпикера
+local function animateColorPicker(colorPicker)
+    local pickerFrame = colorPicker:FindFirstChild("ColorPickerFrame")
+     colorPicker.MouseButton1Click:Connect(function()
+        pickerFrame.Visible = not pickerFrame.Visible
+    end)
+end
+
+-- Анимация текстбокса
+local function animateTextBox(textBox)
+    textBox.Focused:Connect(function()
+        textBox:TweenSizeAndPosition(textBox.Size * 1.05, textBox.Position - UDim2.new(0, 5, 0, 0), 0.2)
+        textBox.BorderSizePixel = 2
+        textBox.BorderColor3 = Color3.new(0, 1, 1)
+    end)
+
+    textBox.FocusedLost:Connect(function()
+        textBox:TweenSizeAndPosition(textBox.Size, textBox.Position, 0.2)
+        textBox.BorderSizePixel = 0
+        textBox.BorderColor3 = Color3.new(0,0,0)
+    end)
+end
+
+return {
+    animateUIAppearance = animateUIAppearance,
+    animateUIClose = animateUIClose,
+    animateButtonPress = animateButtonPress,
+    animateSlider = animateSlider,
+    animateToggle = animateToggle,
+    animateDropdown = animateDropdown,
+    animateColorPicker = animateColorPicker,
+    animateTextBox = animateTextBox,
+    createGlowEffect = createGlowEffect,
+    createShadowEffect = createShadowEffect,
+    createBlurEffect = createBlurEffect,
+}
+
+--[[
+    Часть 4: Темы и стилизация
+    В этой части мы добавим функции для поддержки тем и стилизации UI.
+--]]
+
+local tweenService = game:GetService("TweenService")
+
+-- Таблица для хранения тем
+local themes = {
+    default = {
+        backgroundColor = Color3.new(0.2, 0.2, 0.2),
+        textColor = Color3.new(1, 1, 1),
+        font = Enum.Font.SourceSans,
+        button = {
+            backgroundColor = Color3.new(0.3, 0.3, 0.3),
+            hoverColor = Color3.new(0.4, 0.4, 0.4),
+            activeColor = Color3.new(0.2, 0.2, 0.2),
+            textColor = Color3.new(1, 1, 1),
+            font = Enum.Font.SourceSansBold,
+        },
+        dropdown = {
+            backgroundColor = Color3.new(0.2, 0.2, 0.2),
+            textColor = Color3.new(0.8, 0.8, 0.8),
+            font = Enum.Font.SourceSans,
+            optionBackgroundColor = Color3.new(0.3, 0.3, 0.3),
+            optionHoverColor = Color3.new(0.4, 0.4, 0.4),
+            optionTextColor = Color3.new(1,1,1),
+        },
+        toggle = {
+            trackColor = Color3.new(0.5, 0.5, 0.5),
+            trackColorToggled = Color3.new(0, 0.7, 0),
+            indicatorColor = Color3.new(1, 1, 1),
+            textColor = Color3.new(1,1,1),
+            font = Enum.Font.SourceSans,
+        },
+        slider = {
+            trackColor = Color3.new(0.5, 0.5, 0.5),
+            fillColor = Color3.new(0, 0.7, 0),
+            thumbColor = Color3.new(1, 1, 1),
+            textColor = Color3.new(1,1,1),
+            font = Enum.Font.SourceSans,
+        },
+        textBox = {
+            backgroundColor = Color3.new(0.2, 0.2, 0.2),
+            textColor = Color3.new(1, 1, 1),
+            placeholderColor = Color3.new(0.8, 0.8, 0.8),
+            font = Enum.Font.SourceSans,
+        },
+        colorPicker = {
+            color = Color3.new(1, 1, 1),
+        },
+        label = {
+            textColor = Color3.new(1, 1, 1),
+            font = Enum.Font.SourceSans,
+        },
+        paragraph = {
+            textColor = Color3.new(0.8, 0.8, 0.8),
+            font = Enum.Font.SourceSans,
+        },
+        mainFrame = {
+            backgroundColor = Color3.new(0.1, 0.1, 0.1),
+            borderSizePixel = 2,
+            borderColor = Color3.new(0, 1, 1),
+        },
+        openButton = {
+            backgroundColor = Color3.new(0, 0.7, 0),
+            textColor = Color3.new(1,1,1),
+            font = Enum.Font.SourceSansBold,
+        },
+    },
+    dark = {
+        backgroundColor = Color3.new(0.1, 0.1, 0.1),
+        textColor = Color3.new(0.9, 0.9, 0.9),
+        font = Enum.Font.SourceSans,
+        button = {
+            backgroundColor = Color3.new(0.2, 0.2, 0.2),
+            hoverColor = Color3.new(0.3, 0.3, 0.3),
+            activeColor = Color3.new(0.1, 0.1, 0.1),
+            textColor = Color3.new(0.9, 0.9, 0.9),
+            font = Enum.Font.SourceSansBold,
+        },
+        dropdown = {
+            backgroundColor = Color3.new(0.1, 0.1, 0.1),
+            textColor = Color3.new(0.7, 0.7, 0.7),
+            font = Enum.Font.SourceSans,
+            optionBackgroundColor = Color3.new(0.2, 0.2, 0.2),
+            optionHoverColor = Color3.new(0.3, 0.3, 0.3),
+            optionTextColor = Color3.new(0.9,0.9,0.9),
+        },
+        toggle = {
+            trackColor = Color3.new(0.4, 0.4, 0.4),
+            trackColorToggled = Color3.new(0, 0.6, 0),
+            indicatorColor = Color3.new(0.9, 0.9, 0.9),
+             textColor = Color3.new(0.9,0.9,0.9),
+             font = Enum.Font.SourceSans,
+        },
+        slider = {
+            trackColor = Color3.new(0.4, 0.4, 0.4),
+            fillColor = Color3.new(0, 0.6, 0),
+            thumbColor = Color3.new(0.9, 0.9, 0.9),
+             textColor = Color3.new(0.9,0.9,0.9),
+             font = Enum.Font.SourceSans,
+        },
+        textBox = {
+            backgroundColor = Color3.new(0.1, 0.1, 0.1),
+            textColor = Color3.new(0.9, 0.9, 0.9),
+            placeholderColor = Color3.new(0.6, 0.6, 0.6),
+            font = Enum.Font.SourceSans,
+        },
+        colorPicker = {
+            color = Color3.new(1, 1, 1),
+        },
+        label = {
+            textColor = Color3.new(0.9, 0.9, 0.9),
+            font = Enum.Font.SourceSans,
+        },
+        paragraph = {
+            textColor = Color3.new(0.7, 0.7, 0.7),
+            font = Enum.Font.SourceSans,
+        },
+        mainFrame = {
+            backgroundColor = Color3.new(0, 0, 0),
+            borderSizePixel = 2,
+            borderColor = Color3.new(0, 0.8, 0.8),
+        },
+         openButton = {
+            backgroundColor = Color3.new(0, 0.5, 0),
+            textColor = Color3.new(1,1,1),
+            font = Enum.Font.SourceSansBold,
+        },
+    },
+    light = {
+        backgroundColor = Color3.new(0.95, 0.95, 0.95),
+        textColor = Color3.new(0.1, 0.1, 0.1),
+        font = Enum.Font.SourceSans,
+        button = {
+            backgroundColor = Color3.new(0.8, 0.8, 0.8),
+            hoverColor = Color3.new(0.7, 0.7, 0.7),
+            activeColor = Color3.new(0.9, 0.9, 0.9),
+            textColor = Color3.new(0.1, 0.1, 0.1),
+            font = Enum.Font.SourceSansBold,
+        },
+        dropdown = {
+            backgroundColor = Color3.new(0.95, 0.95, 0.95),
+            textColor = Color3.new(0.5, 0.5, 0.5),
+            font = Enum.Font.SourceSans,
+            optionBackgroundColor = Color3.new(0.9, 0.9, 0.9),
+            optionHoverColor = Color3.new(0.8, 0.8, 0.8),
+            optionTextColor = Color3.new(0.1,0.1,0.1),
+        },
+        toggle = {
+            trackColor = Color3.new(0.7, 0.7, 0.7),
+            trackColorToggled = Color3.new(0, 0.9, 0),
+            indicatorColor = Color3.new(1, 1, 1),
+            textColor = Color3.new(0.1,0.1,0.1),
+            font = Enum.Font.SourceSans,
+        },
+        slider = {
+            trackColor = Color3.new(0.7, 0.7, 0.7),
+            fillColor = Color3.new(0, 0.9, 0),
+            thumbColor = Color3.new(1, 1, 1),
+            textColor = Color3.new(0.1,0.1,0.1),
+            font = Enum.Font.SourceSans,
+        },
+        textBox = {
+            backgroundColor = Color3.new(0.95, 0.95, 0.95),
+            textColor = Color3.new(0.1, 0.1, 0.1),
+            placeholderColor = Color3.new(0.7, 0.7, 0.7),
+            font = Enum.Font.SourceSans,
+        },
+        colorPicker = {
+            color = Color3.new(1, 1, 1),
+        },
+        label = {
+            textColor = Color3.new(0.1, 0.1, 0.1),
+            font = Enum.Font.SourceSans,
+        },
+        paragraph = {
+            textColor = Color3.new(0.5, 0.5, 0.5),
+            font = Enum.Font.SourceSans,
+        },
+        mainFrame = {
+            backgroundColor = Color3.new(1, 1, 1),
+            borderSizePixel = 2,
+            borderColor = Color3.new(0, 0.7, 0.7),
+        },
+        openButton = {
+            backgroundColor = Color3.new(0, 0.9, 0),
+            textColor = Color3.new(0.1,0.1,0.1),
+            font = Enum.Font.SourceSansBold,
+        },
+    },
+     neon = {
+        backgroundColor = Color3.new(0, 0, 0),
+        textColor = Color3.new(1, 1, 1),
+        font = Enum.Font.SourceSans,
+        button = {
+            backgroundColor = Color3.new(0.3, 0, 0.5),
+            hoverColor = Color3.new(0.5, 0, 0.8),
+            activeColor = Color3.new(0.2, 0, 0.3),
+            textColor = Color3.new(1, 1, 1),
+            font = Enum.Font.SourceSansBold,
+        },
+        dropdown = {
+            backgroundColor = Color3.new(0, 0, 0),
+            textColor = Color3.new(0.8, 0.8, 0.8),
+            font = Enum.Font.SourceSans,
+            optionBackgroundColor = Color3.new(0.3, 0, 0.5),
+            optionHoverColor = Color3.new(0.5, 0, 0.8),
+            optionTextColor = Color3.new(1,1,1),
+        },
+        toggle = {
+            trackColor = Color3.new(0.5, 0, 0.5),
+            trackColorToggled = Color3.new(0, 1, 0.5),
+            indicatorColor = Color3.new(1, 1, 1),
+            textColor = Color3.new(1,1,1),
+            font = Enum.Font.SourceSans,
+        },
+        slider = {
+            trackColor = Color3.new(0.5, 0, 0.5),
+            fillColor = Color3.new(0, 1, 0.5),
+            thumbColor = Color3.new(1, 1, 1),
+            textColor = Color3.new(1,1,1),
+            font = Enum.Font.SourceSans,
+        },
+        textBox = {
+            backgroundColor = Color3.new(0, 0, 0),
+            textColor = Color3.new(1, 1, 1),
+            placeholderColor = Color3.new(0.8, 0.8, 0.8),
+            font = Enum.Font.SourceSans,
+        },
+        colorPicker = {
+            color = Color3.new(1, 1, 1),
+        },
+        label = {
+            textColor = Color3.new(1, 1, 1),
+            font = Enum.Font.SourceSans,
+        },
+        paragraph = {
+            textColor = Color3.new(0.8, 0.8, 0.8),
+            font = Enum.Font.SourceSans,
+        },
+        mainFrame = {
+            backgroundColor = Color3.new(0, 0, 0),
+            borderSizePixel = 2,
+            borderColor = Color3.new(0, 1, 0.7),
+        },
+        openButton = {
+            backgroundColor = Color3.new(0.6, 0, 0.9),
+            textColor = Color3.new(1,1,1),
+            font = Enum.Font.SourceSansBold,
+        },
+    },
+}
+
+-- Текущая тема
+local currentTheme = "default"
+
+-- Функция для применения темы к UI
+local function applyTheme(themeName, root)
+    local theme = themes[themeName]
+    if not theme then
+        warn("Theme not found: " .. themeName)
+        return
+    end
+
+    local function applyStyle(object, style)
+        if object then
+            for key, value in pairs(style) do
+                if key == "font" then
+                    object.Font = value
+                elseif key == "textColor" then
+                    object.TextColor3 = value
+                elseif key == "backgroundColor" then
+                    object.BackgroundColor3 = value
+                elseif key == "borderColor" then
+                    object.BorderColor3 = value
+                elseif key == "borderSizePixel" then
+                    object.BorderSizePixel = value
+                end
+            end
+        end
+    end
+
+    -- Применяем стили к элементам
+    applyStyle(root, theme.mainFrame)
+
+    local button = root:FindFirstChild("OpenButton")
+    applyStyle(button, theme.openButton)
+
+    local elements = {
+        "Label",
+        "Paragraph",
+        "Button",
+        "Dropdown",
+        "Toggle",
+        "Slider",
+        "TextBox",
+        "ColorPicker",
+    }
+
+    for _, elementName in ipairs(elements) do
+        local element = root:FindFirstChild(elementName)
+        if element then
+            local style = theme[string.lower(elementName)]
+            if style then
+                applyStyle(element, style)
+                if elementName == "Dropdown" then
+                    local label = element:FindFirstChild("DropdownLabel")
+                    local arrow = element:FindFirstChild("DropdownArrow")
+                    applyStyle(label, { textColor = style.textColor, font = style.font })
+                    applyStyle(arrow, {textColor = style.textColor, font = style.font})
+                    local options = element:FindFirstChild("DropdownOptions")
+                    if options then
+                        for _, option in ipairs(options:GetChildren()) do
+                            if option:IsA("TextButton") then
+                                applyStyle(option, {
+                                    backgroundColor = style.optionBackgroundColor,
+                                    textColor = style.optionTextColor,
+                                    font = style.font,
+                                })
+                                option.MouseEnter:Connect(function()
+                                    option.BackgroundColor3 = style.optionHoverColor
+                                end)
+                                option.MouseLeave:Connect(function()
+                                    option.BackgroundColor3 = style.optionBackgroundColor
+                                end)
+                            end
+                        end
+                    end
+                elseif elementName == "Button" then
+                    element.MouseEnter:Connect(function()
+                        element.BackgroundColor3 = style.hoverColor
+                    end)
+                    element.MouseLeave:Connect(function()
+                        element.BackgroundColor3 = style.backgroundColor
+                    end)
+                    element.MouseButton1Down:Connect(function()
+                        element.BackgroundColor3 = style.activeColor
+                    end)
+                    element.MouseButton1Up:Connect(function()
+                        element.BackgroundColor3 = style.hoverColor
+                    end)
+                elseif elementName == "Toggle" then
+                    local track = element:FindFirstChild("ToggleTrack")
+                    local indicator = element:FindFirstChild("ToggleIndicator")
+                    applyStyle(element:FindFirstChild("ToggleLabel"),{textColor = style.textColor, font = style.font})
+                    if track then
+                        applyStyle(track, { backgroundColor = style.trackColor })
+                    end
+                    if indicator then
+                        applyStyle(indicator, { backgroundColor = style.indicatorColor })
+                    end
+                elseif elementName == "Slider" then
+                    local track = element:FindFirstChild("SliderTrack")
+                    local fill = element:FindFirstChild("SliderFill")
+                    local thumb = element:FindFirstChild("SliderThumb")
+                    applyStyle(element:FindFirstChild("SliderLabel"),{textColor = style.textColor, font = style.font})
+                    applyStyle(element:FindFirstChild("SliderValueLabel"),{textColor = style.textColor, font = style.font})
+                    if track then
+                        applyStyle(track, { backgroundColor = style.trackColor })
+                    end
+                    if fill then
+                        applyStyle(fill, { backgroundColor = style.fillColor })
+                    end
+                    if thumb then
+                        applyStyle(thumb, { backgroundColor = style.thumbColor })
+                    end
+                elseif elementName == "TextBox" then
+                    applyStyle(element, {
+                        backgroundColor = style.backgroundColor,
+                        textColor = style.textColor,
+                        Font = style.font,
+                    })
+                    element.PlaceholderColor3 = style.placeholderColor
+                elseif elementName == "ColorPicker" then
+                     applyStyle(element, {
+                        backgroundColor = style.color
+                    })
+                end
+            end
+        end
+    end
+    currentTheme = themeName
+end
+
+-- Функция для переключения между темами
+local function switchTheme(root, themeName)
+    if themes[themeName] then
+        applyTheme(themeName, root)
+    else
+        warn("Theme not found: " .. themeName)
+    end
+end
+
+-- Функция для получения текущей темы
+local function getCurrentTheme()
+    return currentTheme
+end
+
+return {
+    themes = themes,
+    applyTheme = applyTheme,
+    switchTheme = switchTheme,
+    getCurrentTheme = getCurrentTheme,
+}
+
+return SnowT_UI
