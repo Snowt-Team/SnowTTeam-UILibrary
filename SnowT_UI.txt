@@ -1,0 +1,996 @@
+local SnowT_UI = {}
+SnowT_UI.__index = SnowT_UI
+
+-- Общие функции и утилиты
+
+-- Функция для создания объекта с заданными свойствами
+local function create(type, properties, parent)
+    local object = Instance.new(type)
+    if properties then
+        for key, value in pairs(properties) do
+            object[key] = value
+        end
+    end
+    if parent then
+        object.Parent = parent
+    end
+    return object
+end
+
+-- Функция для применения стиля к элементу
+local function applyStyle(element, style)
+    if not element or not style then return end
+    for key, value in pairs(style) do
+        pcall(function() element[key] = value end) -- pcall для обработки ошибок, если свойство не существует
+    end
+end
+
+-- Функция для создания закругленного угла
+local function createCorner(parent, radius)
+    create("UICorner", { CornerRadius = UDim.new(0, radius) }, parent)
+end
+
+-- Основное окно UI
+function SnowT_UI:CreateWindow(properties)
+    local screenGui = create("ScreenGui", {
+        Name = "SnowT_UI",
+        ResetOnSpawn = false,
+    })
+
+    local mainFrame = create("Frame", {
+        Size = properties.Size or UDim2.new(0, 800, 0, 600),
+        Position = properties.Position or UDim2.new(0.3, 0, 0.2, 0),
+        BackgroundColor3 = properties.BackgroundColor or Color3.new(0.1, 0.1, 0.1),
+        BackgroundTransparency = properties.BackgroundTransparency or 0.7,
+        BorderSizePixel = 0,
+        Draggable = true,
+    }, screenGui)
+
+    createCorner(mainFrame, properties.CornerRadius or 15)
+
+    -- Заголовок
+    local titleBar = create("Frame", {
+        Size = UDim2.new(1, 0, 0, 40),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = properties.TitleBarColor or Color3.new(0.2, 0.2, 0.2),
+        BackgroundTransparency = properties.TitleBarTransparency or 0,
+        BorderSizePixel = 0,
+    }, mainFrame)
+
+    createCorner(titleBar, properties.TitleBarCornerRadius or 15)
+
+    local titleLabel = create("TextLabel", {
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        Text = properties.Title or "UI Window",
+        Font = Enum.Font.SourceSansBold,
+        TextSize = properties.TitleSize or 20,
+        TextColor3 = properties.TitleColor or Color3.new(1, 1, 1),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Center,
+    }, titleBar)
+
+    -- Кнопка закрытия
+    local closeButton = create("TextButton", {
+        Size = UDim2.new(0, 30, 0, 30),
+        Position = UDim2.new(1, -35, 5, 5),
+        Text = "x",
+        Font = Enum.Font.SourceSansBold,
+        TextSize = 16,
+        TextColor3 = properties.CloseButtonColor or Color3.new(1, 1, 1),
+        BackgroundColor3 = properties.CloseButtonBackgroundColor or Color3.new(0.8, 0.2, 0.2),
+        BackgroundTransparency = properties.CloseButtonBackgroundTransparency or 0.5,
+        BorderSizePixel = 0,
+        AnchorPoint = Vector2.new(1, 0),
+    }, titleBar)
+
+    createCorner(closeButton, properties.CloseButtonCornerRadius or 10)
+
+    closeButton.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
+
+    return mainFrame
+end
+
+-- Кнопка
+function SnowT_UI:CreateButton(parent, properties)
+    local button = create("TextButton", {
+        Size = properties.Size or UDim2.new(0, 100, 0, 30),
+        Position = properties.Position or UDim2.new(0, 0, 0, 0),
+        Text = properties.Text or "Button",
+        Font = properties.Font or Enum.Font.SourceSansBold,
+        TextSize = properties.TextSize or 14,
+        TextColor3 = properties.TextColor or Color3.new(1, 1, 1),
+        BackgroundColor3 = properties.BackgroundColor or Color3.new(0.2, 0.2, 0.2),
+        BackgroundTransparency = properties.BackgroundTransparency or 0,
+        BorderSizePixel = 0,
+    }, parent)
+
+    createCorner(button, properties.CornerRadius or 8)
+
+    if properties.OnClick then
+        button.MouseButton1Click:Connect(properties.OnClick)
+    end
+
+    return button
+end
+
+-- Текстовое поле
+function SnowT_UI:CreateTextBox(parent, properties)
+    local textBox = create("TextBox", {
+        Size = properties.Size or UDim2.new(0, 200, 0, 30),
+        Position = properties.Position or UDim2.new(0, 0, 0, 0),
+        PlaceholderText = properties.PlaceholderText or "",
+        Font = properties.Font or Enum.Font.SourceSans,
+        TextSize = properties.TextSize or 14,
+        TextColor3 = properties.TextColor or Color3.new(1, 1, 1),
+        BackgroundColor3 = properties.BackgroundColor or Color3.new(0.2, 0.2, 0.2),
+        BackgroundTransparency = properties.BackgroundTransparency or 0,
+        BorderSizePixel = 0,
+    }, parent)
+
+    createCorner(textBox, properties.CornerRadius or 8)
+
+    if properties.OnTextChanged then
+        textBox.Changed:Connect(function()
+            properties.OnTextChanged(textBox.Text)
+        end)
+    end
+
+    return textBox
+end
+
+-- Текстовая метка
+function SnowT_UI:CreateLabel(parent, properties)
+    local label = create("TextLabel", {
+        Size = properties.Size or UDim2.new(0, 100, 0, 20),
+        Position = properties.Position or UDim2.new(0, 0, 0, 0),
+        Text = properties.Text or "Label",
+        Font = properties.Font or Enum.Font.SourceSans,
+        TextSize = properties.TextSize or 14,
+        TextColor3 = properties.TextColor or Color3.new(1, 1, 1),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1,
+        TextXAlignment = properties.TextXAlignment or Enum.TextXAlignment.Left,
+        TextYAlignment = properties.TextYAlignment or Enum.TextYAlignment.Center,
+    }, parent)
+
+    return label
+end
+
+-- Ползунок
+function SnowT_UI:CreateSlider(parent, properties)
+    local slider = create("Frame", {
+        Size = properties.Size or UDim2.new(0, 200, 0, 20),
+        Position = properties.Position or UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = properties.BackgroundColor or Color3.new(0.2, 0.2, 0.2),
+        BackgroundTransparency = properties.BackgroundTransparency or 0,
+        BorderSizePixel = 0,
+    }, parent)
+
+    createCorner(slider, properties.CornerRadius or 8)
+
+    local track = create("Frame", {
+        Size = UDim2.new(1, 0, 0.3, 0),
+        Position = UDim2.new(0, 0.35, 0, 0),
+        BackgroundColor3 = properties.TrackColor or Color3.new(0.4, 0.4, 0.4),
+        BackgroundTransparency = properties.TrackTransparency or 0,
+        BorderSizePixel = 0,
+    }, slider)
+
+    createCorner(track, properties.TrackCornerRadius or 4)
+
+    local fill = create("Frame", {
+        Size = UDim2.new(0, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = properties.FillColor or Color3.new(0.8, 0.8, 0.8),
+        BackgroundTransparency = properties.FillTransparency or 0,
+        BorderSizePixel = 0,
+    }, track)
+
+    createCorner(fill, properties.FillCornerRadius or 4)
+
+    local thumb = create("Frame", {
+        Size = UDim2.new(0, 20, 1.5, 0),
+        Position = UDim2.new(0, 0, -0.25, 0),
+        BackgroundColor3 = properties.ThumbColor or Color3.new(1, 1, 1),
+        BackgroundTransparency = properties.ThumbTransparency or 0,
+        BorderSizePixel = 0,
+        Draggable = true,
+    }, track)
+
+    createCorner(thumb, properties.ThumbCornerRadius or 10)
+
+    local value = properties.DefaultValue or 0
+    local maxValue = properties.MaxValue or 1
+    local minValue = properties.MinValue or 0
+
+    local function updateValue(x)
+        value = math.clamp((x / slider.AbsoluteSize.X) * (maxValue - minValue) + minValue, minValue, maxValue)
+        fill.Size = UDim2.new(0, math.clamp(x, 0, slider.AbsoluteSize.X), 1, 0)
+        thumb.Position = UDim2.new(0, x, -0.25, 0)
+        if properties.OnValueChanged then
+            properties.OnValueChanged(value)
+        end
+    end
+
+    thumb:GetPropertyChangedSignal("Position"):Connect(function()
+        updateValue(thumb.Position.X.Offset)
+    end)
+
+    slider.Mouse1Down:Connect(function(x, y)
+        local connection
+        connection = slider.Mouse1Move:Connect(function(x)
+            updateValue(x - slider.AbsolutePosition.X)
+        end)
+        slider.Mouse1Up:Connect(function()
+            if connection then
+                connection:Disconnect()
+            end
+        end)
+    end)
+
+    updateValue(value / (maxValue - minValue) * slider.AbsoluteSize.X)
+
+    return slider, value
+end
+
+-- Выпадающий список
+function SnowT_UI:CreateDropdown(parent, properties)
+    local dropdown = create("Frame", {
+        Size = properties.Size or UDim2.new(0, 200, 0, 30),
+        Position = properties.Position or UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = properties.BackgroundColor or Color3.new(0.2, 0.2, 0.2),
+        BackgroundTransparency = properties.BackgroundTransparency or 0,
+        BorderSizePixel = 0,
+    }, parent)
+
+    createCorner(dropdown, properties.CornerRadius or 8)
+
+    local selectedText = create("TextLabel", {
+        Size = UDim2.new(1, 1, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        Text = properties.DefaultText or properties.Options[1] or "",
+        Font = properties.Font or Enum.Font.SourceSans,
+        TextSize = properties.TextSize or 14,
+        TextColor3 = properties.TextColor or Color3.new(1, 1, 1),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Center,
+    }, dropdown)
+
+    local arrow = create("TextLabel", {
+        Size = UDim2.new(0, 20, 1, 0),
+        Position = UDim2.new(1, -20, 0, 0),
+        Text = "▼",
+        Font = Enum.Font.SourceSansBold,
+        TextSize = 14,
+        TextColor3 = properties.TextColor or Color3.new(1, 1, 1),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1,
+        TextXAlignment = Enum.TextXAlignment.Center,
+        TextYAlignment = Enum.TextYAlignment.Center,
+    }, dropdown)
+
+    local optionsFrame = create("Frame", {
+        Size = UDim2.new(1, 0, 0, 0),
+        Position = UDim2.new(0, 1, 0, 0),
+        BackgroundColor3 = properties.OptionsBackgroundColor or Color3.new(0.2, 0.2, 0.2),
+        BackgroundTransparency = properties.OptionsBackgroundTransparency or 0,
+        BorderSizePixel = 0,
+        Visible = false,
+    }, dropdown)
+
+    createCorner(optionsFrame, properties.OptionsCornerRadius or 8)
+
+    local optionButtons = {}
+    for i, option in ipairs(properties.Options) do
+        local optionButton = create("TextButton", {
+            Size = UDim2.new(1, 0, 0, 30),
+            Position = UDim2.new(0, 0, 0, (i - 1) * 30),
+            Text = option,
+            Font = properties.Font or Enum.Font.SourceSans,
+            TextSize = properties.TextSize or 14,
+            TextColor3 = properties.TextColor or Color3.new(1, 1, 1),
+            BackgroundColor3 = Color3.new(1, 1, 1),
+            BackgroundTransparency = 0,
+            BorderSizePixel = 0,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextYAlignment = Enum.TextYAlignment.Center,
+        }, optionsFrame)
+
+        optionButton.MouseButton1Click:Connect(function()
+            selectedText.Text = option
+            optionsFrame.Visible = false
+            if properties.OnSelected then
+                properties.OnSelected(option, i)
+            end
+        end)
+
+        table.insert(optionButtons, optionButton)
+        optionsFrame.Size = UDim2.new(1, 0, 0, #optionButtons * 30)
+    end
+
+    dropdown.MouseButton1Click:Connect(function()
+        optionsFrame.Visible = not optionsFrame.Visible
+    end)
+
+    return dropdown, selectedText
+end
+
+-- Чекбокс
+function SnowT_UI:CreateCheckbox(parent, properties)
+    local checkbox = create("Frame", {
+        Size = properties.Size or UDim2.new(0, 20, 0, 20),
+        Position = properties.Position or UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = properties.BackgroundColor or Color3.new(0.2, 0.2, 0.2),
+        BackgroundTransparency = properties.BackgroundTransparency or 0,
+        BorderSizePixel = 0,
+    }, parent)
+
+    createCorner(checkbox, properties.CornerRadius or 4)
+
+    local tick = create("TextLabel", {
+        Size = UDim2.new(1, 1, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        Text = properties.Checked or false and "✔" or "",
+        Font = properties.Font or Enum.Font.SourceSansBold,
+        TextSize = properties.TextSize or 14,
+        TextColor3 = properties.TextColor or Color3.new(1, 1, 1),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1,
+        TextXAlignment = Enum.TextXAlignment.Center,
+        TextYAlignment = Enum.TextYAlignment.Center,
+    }, checkbox)
+
+    local checked = properties.Checked or false
+
+    checkbox.MouseButton1Click:Connect(function()
+        checked = not checked
+        tick.Text = checked and "✔" or ""
+        if properties.OnChanged then
+            properties.OnChanged(checked)
+        end
+    end)
+
+    return checkbox, checked
+end
+
+-- Вкладки
+function SnowT_UI:CreateTabs(parent, properties)
+    local tabsFrame = create("Frame", {
+        Size = properties.Size or UDim2.new(1, 0, 0, 40),
+        Position = properties.Position or UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = properties.BackgroundColor or Color3.new(0.15, 0.15, 0.15),
+        BackgroundTransparency = properties.BackgroundTransparency or 0,
+        BorderSizePixel = 0,
+    }, parent)
+
+    createCorner(tabsFrame, properties.CornerRadius or 8)
+
+    local contentFrame = create("Frame", {
+        Size = properties.ContentSize or UDim2.new(1, 0, 1, -40),
+        Position = properties.ContentPosition or UDim2.new(0, 1, 0, 0),
+        BackgroundColor3 = properties.ContentBackgroundColor or Color3.new(0.1, 0.1, 0.1),
+        BackgroundTransparency = properties.ContentBackgroundTransparency or 0,
+        BorderSizePixel = 0,
+    }, parent)
+
+    createCorner(contentFrame, properties.ContentCornerRadius or 8)
+
+    local tabButtons = {}
+    local tabContents = {}
+    local selectedTab = nil
+
+    local function selectTab(tabButton, tabContent)
+        if selectedTab then
+            selectedTab.button.BackgroundColor3 = properties.ButtonBackgroundColor or Color3.new(0.15, 0.15, 0.15)
+            selectedTab.content.Visible = false
+        end
+        selectedTab = { button = tabButton, content = tabContent }
+        tabButton.BackgroundColor3 = properties.SelectedButtonBackgroundColor or Color3.new(0.25, 0.25, 0.25)
+        tabContent.Visible = true
+    end
+
+    for i, tabData in ipairs(properties.Tabs) do
+        local tabButton = create("TextButton", {
+            Size = properties.ButtonSize or UDim2.new(0, 100, 1, 0),
+            Position = properties.ButtonPosition or UDim2.new((i - 1) / #properties.Tabs, 0, 0, 0),
+            AnchorPoint = Vector2.new(0.5, 0),
+            Text = tabData.Text,
+            Font = properties.ButtonFont or Enum.Font.SourceSansBold,
+            TextSize = properties.ButtonTextSize or 14,
+            TextColor3 = properties.ButtonTextColor or Color3.new(1, 1, 1),
+            BackgroundColor3 = properties.ButtonBackgroundColor or Color3.new(0.15, 0.15, 0.15),
+            BackgroundTransparency = properties.ButtonBackgroundTransparency or 0,
+            BorderSizePixel = 0,
+        }, tabsFrame)
+
+        local tabContent = create("Frame", {
+            Size = UDim2.new(1, 1, 1, 1),
+            Position = UDim2.new(0, 0, 0, 0),
+            BackgroundColor3 = properties.TabContentBackgroundColor or Color3.new(0.1, 0.1, 0.1),
+            BackgroundTransparency = properties.TabContentBackgroundTransparency or 0,
+            BorderSizePixel = 0,
+            Visible = false,
+        }, contentFrame)
+
+        createCorner(tabButton, properties.ButtonCornerRadius or 8)
+        createCorner(tabContent, properties.TabContentCornerRadius or 8)
+
+        table.insert(tabButtons, tabButton)
+        table.insert(tabContents, tabContent)
+
+        tabButton.MouseButton1Click:Connect(function()
+            selectTab(tabButton, tabContent)
+            if tabData.OnSelected then
+                tabData.OnSelected(tabContent)
+            end
+        end)
+
+        if i == 1 then
+            selectTab(tabButton, tabContent)
+        end
+    end
+
+    return tabsFrame, tabContents
+end
+-- Изображение
+function SnowT_UI:CreateImage(parent, properties)
+    local image = create("ImageLabel", {
+        Size = properties.Size or UDim2.new(0, 100, 0, 100),
+        Position = properties.Position or UDim2.new(0, 0, 0, 0),
+        Image = properties.Image,
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+    }, parent)
+
+    createCorner(image, properties.CornerRadius or 8)
+
+    return image
+end
+
+-- Рамка
+function SnowT_UI:CreateFrame(parent, properties)
+    local frame = create("Frame", {
+        Size = properties.Size or UDim2.new(0, 200, 0, 200),
+        Position = properties.Position or UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = properties.BackgroundColor or Color3.new(0.2, 0.2, 0.2),
+        BackgroundTransparency = properties.BackgroundTransparency or 0,
+        BorderSizePixel = 0,
+    }, parent)
+
+    createCorner(frame, properties.CornerRadius or 8)
+
+    return frame
+end
+
+-- Список
+function SnowT_UI:CreateList(parent, properties)
+    local scrollingFrame = create("ScrollingFrame", {
+        Size = properties.Size or UDim2.new(0, 200, 0, 200),
+        Position = properties.Position or UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = properties.BackgroundColor or Color3.new(0.2, 0.2, 0.2),
+        BackgroundTransparency = properties.BackgroundTransparency or 0,
+        BorderSizePixel = 0,
+        ScrollBarThickness = properties.ScrollBarThickness or 6,
+    }, parent)
+
+    createCorner(scrollingFrame, properties.CornerRadius or 8)
+
+    local itemsFrame = create("Frame", {
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+    }, scrollingFrame)
+
+    local items = {}
+    local yOffset = 0
+
+    local function addItem(itemData)
+        local item = create("Frame", {
+            Size = properties.ItemSize or UDim2.new(1, 0, 0, 40),
+            Position = UDim2.new(0, 0, 0, yOffset),
+            BackgroundColor3 = properties.ItemBackgroundColor or Color3.new(0.25, 0.25, 0.25),
+            BackgroundTransparency = properties.ItemBackgroundTransparency or 0,
+            BorderSizePixel = 0,
+        }, itemsFrame)
+
+        createCorner(item, properties.ItemCornerRadius or 4)
+
+        for elementName, elementProperties in pairs(itemData) do
+            if elementName == "TextLabel" then
+                SnowT_UI:CreateLabel(item, elementProperties)
+            elseif elementName == "Button" then
+                SnowT_UI:CreateButton(item, elementProperties)
+            elseif elementName == "ImageLabel" then
+                SnowT_UI:CreateImage(item, elementProperties)
+            end
+        end
+
+        table.insert(items, item)
+        yOffset = yOffset + item.Size.Y.Offset + (properties.ItemPadding or 5)
+        itemsFrame.Size = UDim2.new(1, 0, 0, yOffset)
+        scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, itemsFrame.Size.Y.Offset)
+    end
+
+    if properties.Items then
+        for _, itemData in ipairs(properties.Items) do
+            addItem(itemData)
+        end
+    end
+
+    return scrollingFrame, addItem, items
+end
+
+-- Слайдер цвета
+function SnowT_UI:CreateColorPicker(parent, properties)
+    local colorPicker = create("Frame", {
+        Size = properties.Size or UDim2.new(0, 200, 0, 30),
+        Position = properties.Position or UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = properties.BackgroundColor or Color3.new(0.2, 0.2, 0.2),
+        BackgroundTransparency = properties.BackgroundTransparency or 0,
+        BorderSizePixel = 0,
+    }, parent)
+
+    createCorner(colorPicker, properties.CornerRadius or 8)
+
+    local colorDisplay = create("Frame", {
+        Size = UDim2.new(0, 20, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = properties.Color or Color3.new(1, 1, 1),
+        BackgroundTransparency = properties.ColorTransparency or 0,
+        BorderSizePixel = 0,
+    }, colorPicker)
+
+    createCorner(colorDisplay, properties.ColorCornerRadius or 4)
+
+    local slider, value = SnowT_UI:CreateSlider(colorPicker, {
+        Size = UDim2.new(1, -25, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        MaxValue = 360,
+        OnValueChanged = function(hue)
+            local color = Color3.fromHSV(hue / 360, 1, 1)
+            colorDisplay.BackgroundColor3 = color
+            if properties.OnColorChanged then
+                properties.OnColorChanged(color)
+            end
+        end,
+    })
+
+    return colorPicker, colorDisplay, slider, value
+end
+
+-- Диалоговое окно
+function SnowT_UI:CreateDialog(properties)
+    local screenGui = create("ScreenGui", {
+        Name = "SnowT_UI_Dialog",
+        ResetOnSpawn = true,
+    })
+
+    local overlay = create("Frame", {
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = Color3.new(0, 0, 0),
+        BackgroundTransparency = 0.5,
+    }, screenGui)
+
+    local dialogFrame = create("Frame", {
+        Size = properties.Size or UDim2.new(0, 400, 0, 200),
+        Position = UDim2.new(0.5, 0.5, 0.5, 0.5),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = properties.BackgroundColor or Color3.new(0.1, 0.1, 0.1),
+        BackgroundTransparency = properties.BackgroundTransparency or 0,
+        BorderSizePixel = 0,
+    }, overlay)
+
+    createCorner(dialogFrame, properties.CornerRadius or 12)
+
+    local titleLabel = create("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 40),
+        Position = UDim2.new(0, 0, 0, 0),
+        Text = properties.Title or "Dialog",
+        Font = properties.TitleFont or Enum.Font.SourceSansBold,
+        TextSize = properties.TitleSize or 18,
+        TextColor3 = properties.TitleColor or Color3.new(1, 1, 1),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1,
+        TextXAlignment = Enum.TextXAlignment.Center,
+        TextYAlignment = Enum.TextYAlignment.Center,
+    }, dialogFrame)
+
+    local contentLabel = create("TextLabel", {
+        Size = UDim2.new(1, 0, 1, -80),
+        Position = UDim2.new(0, 40, 0, 0),
+        Text = properties.Content or "",
+        Font = properties.ContentFont or Enum.Font.SourceSans,
+        TextSize = properties.ContentSize or 14,
+        TextColor3 = properties.ContentColor or Color3.new(0.9, 0.9, 0.9),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1,
+        TextXAlignment = properties.ContentAlignment or Enum.TextXAlignment.Center,
+        TextYAlignment = properties.ContentAlignment or Enum.TextYAlignment.Center,
+        TextWrapped = true,
+    }, dialogFrame)
+
+    local buttonsFrame = create("Frame", {
+        Size = UDim2.new(1, 0, 0, 40),
+        Position = UDim2.new(0, 1, 0, -40),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+    }, dialogFrame)
+
+    local buttonWidth = 1 / #properties.Buttons
+    for i, buttonData in ipairs(properties.Buttons) do
+        local button = create("TextButton", {
+            Size = UDim2.new(buttonWidth, 0, 1, 0),
+            Position = UDim2.new((i - 1) * buttonWidth, 0, 0, 0),
+            Text = buttonData.Text,
+            Font = buttonData.Font or Enum.Font.SourceSansBold,
+            TextSize = buttonData.Size or 14,
+            TextColor3 = buttonData.Color or Color3.new(1, 1, 1),
+            BackgroundColor3 = buttonData.BackgroundColor or Color3.new(0.2, 0.2, 0.2),
+            BackgroundTransparency = buttonData.BackgroundTransparency or 0,
+            BorderSizePixel = 0,
+        }, buttonsFrame)
+
+        createCorner(button, buttonData.CornerRadius or 8)
+
+        button.MouseButton1Click:Connect(function()
+            if buttonData.OnClick then
+                buttonData.OnClick()
+            end
+            screenGui:Destroy()
+        end)
+    end
+
+    return dialogFrame
+end
+
+-- Система тем
+local themes = {
+    dark = {
+        Window = {
+            backgroundColor = Color3.new(0.1, 0.1, 0.1),
+            backgroundTransparency = 0.7,
+            cornerRadius = 15,
+        },
+        TitleBar = {
+            backgroundColor = Color3.new(0.2, 0.2, 0.2),
+            backgroundTransparency = 0,
+            cornerRadius = 15,
+        },
+        TitleLabel = {
+            textColor = Color3.new(1, 1, 1),
+            titleSize = 20,
+        },
+        CloseButton = {
+            backgroundColor = Color3.new(0.8, 0.2, 0.2),
+            backgroundTransparency = 0.5,
+            cornerRadius = 10,
+        },
+        Button = {
+            backgroundColor = Color3.new(0.2, 0.2, 0.2),
+            textColor = Color3.new(1, 1, 1),
+            cornerRadius = 8,
+        },
+        TextBox = {
+            backgroundColor = Color3.new(0.2, 0.2, 0.2),
+            textColor = Color3.new(1, 1, 1),
+            placeholderColor = Color3.new(0.7, 0.7, 0.7),
+        },
+        Label = {
+            textColor = Color3.new(1, 1, 1),
+        },
+        Slider = {
+            trackColor = Color3.new(0.4, 0.4, 0.4),
+            fillColor = Color3.new(0.8, 0.8, 0.8),
+            thumbColor = Color3.new(1, 1, 1),
+            cornerRadius = 8,
+        },
+        Dropdown = {
+            backgroundColor = Color3.new(0.2, 0.2, 0.2),
+            textColor = Color3.new(1, 1, 1),
+            optionsBackgroundColor = Color3.new(0.2, 0.2, 0.2),
+            optionsCornerRadius = 8,
+        },
+        Checkbox = {
+            backgroundColor = Color3.new(0.2, 0.2, 0.2),
+            tickColor = Color3.new(1, 1, 1),
+            cornerRadius = 4,
+        },
+        Tabs = {
+            backgroundColor = Color3.new(0.15, 0.15, 0.15),
+            buttonBackgroundColor = Color3.new(0.15, 0.15, 0.15),
+            selectedButtonBackgroundColor = Color3.new(0.25, 0.25, 0.25),
+            buttonTextColor = Color3.new(1, 1, 1),
+            contentBackgroundColor = Color3.new(0.1, 0.1, 0.1),
+            cornerRadius = 8,
+        },
+        List = {
+            backgroundColor = Color3.new(0.2, 0.2, 0.2),
+            itemBackgroundColor = Color3.new(0.25, 0.25, 0.25),
+            itemTextColor = Color3.new(1, 1, 1),
+            cornerRadius = 8,
+            itemCornerRadius = 4,
+        },
+        ColorPicker = {
+            backgroundColor = Color3.new(0.2, 0.2, 0.2),
+            cornerRadius = 8,
+        },
+    },
+    light = {
+        Window = {
+            backgroundColor = Color3.new(0.95, 0.95, 0.95),
+            backgroundTransparency = 0.5,
+            cornerRadius = 15,
+        },
+        TitleBar = {
+            backgroundColor = Color3.new(0.85, 0.85, 0.85),
+            backgroundTransparency = 0,
+            cornerRadius = 15,
+        },
+        TitleLabel = {
+            textColor = Color3.new(0, 0, 0),
+            titleSize = 20,
+        },
+        CloseButton = {
+            backgroundColor = Color3.new(0.9, 0.3, 0.3),
+            backgroundTransparency = 0.5,
+            cornerRadius = 10,
+        },
+        Button = {
+            backgroundColor = Color3.new(0.85, 0.85, 0.85),
+            textColor = Color3.new(0, 0, 0),
+            cornerRadius = 8,
+        },
+        TextBox = {
+            backgroundColor = Color3.new(0.85, 0.85, 0.85),
+            textColor = Color3.new(0, 0, 0),
+            placeholderColor = Color3.new(0.5, 0.5, 0.5),
+        },
+        Label = {
+            textColor = Color3.new(0, 0, 0),
+        },
+        Slider = {
+            trackColor = Color3.new(0.7, 0.7, 0.7),
+            fillColor = Color3.new(0.4, 0.4, 0.4),
+            thumbColor = Color3.new(0.2, 0.2, 0.2),
+            cornerRadius = 8,
+        },
+        Dropdown = {
+            backgroundColor = Color3.new(0.85, 0.85, 0.85),
+            textColor = Color3.new(0, 0, 0),
+            optionsBackgroundColor = Color3.new(0.85, 0.85, 0.85),
+            optionsCornerRadius = 8,
+        },
+        Checkbox = {
+            backgroundColor = Color3.new(0.85, 0.85, 0.85),
+            tickColor = Color3.new(0, 0, 0),
+            cornerRadius = 4,
+        },
+        Tabs = {
+            backgroundColor = Color3.new(0.8, 0.8, 0.8),
+            buttonBackgroundColor = Color3.new(0.8, 0.8, 0.8),
+            selectedButtonBackgroundColor = Color3.new(0.7, 0.7, 0.7),
+            buttonTextColor = Color3.new(0, 0, 0),
+            contentBackgroundColor = Color3.new(0.9, 0.9, 0.9),
+            cornerRadius = 8,
+        },
+        List = {
+            backgroundColor = Color3.new(0.85, 0.85, 0.85),
+            itemBackgroundColor = Color3.new(0.8, 0.8, 0.8),
+            itemTextColor = Color3.new(0, 0, 0),
+            cornerRadius = 8,
+            itemCornerRadius = 4,
+        },
+        ColorPicker = {
+            backgroundColor = Color3.new(0.85, 0.85, 0.85),
+            cornerRadius = 8,
+        },
+    },
+}
+
+local currentTheme = "default"
+
+-- Функция для применения темы к элементу и его потомкам
+local function applyTheme(themeName, object)
+    local theme = themes[themeName]
+    if not theme then return end
+
+    for elementName, element in pairs(object:GetDescendants()) do
+        if theme[element.ClassName] then
+            local style = theme[element.ClassName]
+            if elementName == "Window" then
+                applyStyle(element, style)
+            elseif elementName == "TitleBar" then
+                applyStyle(element, style)
+            elseif elementName == "TitleLabel" then
+                applyStyle(element, style)
+            elseif elementName == "CloseButton" then
+                applyStyle(element, style)
+            elseif elementName == "Button" then
+                applyStyle(element, style)
+            elseif elementName == "TextBox" then
+                applyStyle(element, style)
+                if style.placeholderColor then
+                    element.PlaceholderColor3 = style.placeholderColor
+                end
+            elseif elementName == "TextLabel" and elementName ~= "TitleLabel" and elementName ~= "CloseButton" then
+                applyStyle(element, style.Label)
+            elseif elementName == "Frame" and elementName ~= "Window" and elementName ~= "TitleBar" and elementName ~= "Button" and elementName ~= "SliderTrack" and elementName ~= "SliderFill" and elementName ~= "SliderThumb" and elementName ~= "List" and elementName ~= "ListItem" and elementName ~= "ColorPicker" and not string.find(element.Name, "TabButton") then
+                applyStyle(element, { BackgroundColor3 = style.backgroundColor, BackgroundTransparency = style.backgroundTransparency })
+                if style.cornerRadius then
+                    local corner = element:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+                    corner.Parent = element
+                    corner.CornerRadius = UDim.new(0, style.cornerRadius)
+                end
+            elseif elementName == "ScrollingFrame" and elementName == "List" then
+                applyStyle(element, style.List)
+                if style.List.cornerRadius then
+                    local corner = element:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+                    corner.Parent = element
+                    corner.CornerRadius = UDim.new(0, style.List.cornerRadius)
+                end
+            elseif elementName == "Frame" and elementName == "ListItem" then
+                applyStyle(element, style.List)
+                if style.List.itemCornerRadius then
+                    local corner = element:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+                    corner.Parent = element
+                    corner.CornerRadius = UDim.new(0, style.List.itemCornerRadius)
+                end
+            elseif elementName == "TextButton" and string.find(element.Name, "TabButton") then
+                applyStyle(element, style.Tabs.buttonBackgroundColor)
+                applyStyle(element.Parent, style.Tabs.backgroundColor)
+                local content = element.Parent:FindFirstChildOfClass("Frame")
+                if content then
+                    applyStyle(content, style.Tabs.contentBackgroundColor)
+                    if style.Tabs.contentCornerRadius then
+                        local corner = content:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+                        corner.Parent = content
+                        corner.CornerRadius = UDim.new(0, style.Tabs.contentCornerRadius)
+                    end
+                end
+                if style.Tabs.buttonCornerRadius then
+                    local corner = element:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+                    corner.Parent = element
+                    corner.CornerRadius = UDim.new(0, style.Tabs.buttonCornerRadius)
+                end
+                local selected = false -- Need a way to track selection
+                if selected then
+                    applyStyle(element, style.Tabs.selectedButtonBackgroundColor)
+                else
+                    applyStyle(element, style.Tabs.buttonBackgroundColor)
+                end
+                applyStyle(element, { TextColor3 = style.Tabs.buttonTextColor })
+            elseif elementName == "Frame" and string.find(element.Name, "Slider") then
+                local track = element:FindFirstChildOfClass("Frame")
+                local thumb = track and track:FindFirstChildOfClass("Frame")
+                local fill = track and track:FindFirstChildOfClass("Frame")
+                if track then
+                    applyStyle(track, { BackgroundColor3 = style.Slider.trackColor })
+                    if style.Slider.cornerRadius then
+                        local corner = track:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+                        corner.Parent = track
+                        corner.CornerRadius = UDim.new(0, style.Slider.cornerRadius / 2) -- Adjust if needed
+                    end
+                end
+                if fill then
+                    applyStyle(fill, { BackgroundColor3 = style.Slider.fillColor })
+                    if style.Slider.cornerRadius then
+                        local corner = fill:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+                        corner.Parent = fill
+                        corner.CornerRadius = UDim.new(0, style.Slider.cornerRadius / 2) -- Adjust if needed
+                    end
+                end
+                if thumb then
+                    applyStyle(thumb, { BackgroundColor3 = style.Slider.thumbColor })
+                    if style.Slider.cornerRadius then
+                        local corner = thumb:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+                        corner.Parent = thumb
+                        corner.CornerRadius = UDim.new(0, style.Slider.cornerRadius)
+                    end
+                end
+            elseif elementName == "Frame" and string.find(element.Name, "Dropdown") then
+                applyStyle(element, style.Dropdown)
+                if style.Dropdown.cornerRadius then
+                    local corner = element:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+                    corner.Parent = element
+                    corner.CornerRadius = UDim.new(0, style.Dropdown.cornerRadius)
+                end
+                local textLabel = element:FindFirstChildOfClass("TextLabel")
+                if textLabel then
+                    applyStyle(textLabel, { TextColor3 = style.Dropdown.textColor })
+                end
+                local optionsFrame = element:FindFirstChildOfClass("Frame")
+                if optionsFrame then
+                    applyStyle(optionsFrame, { BackgroundColor3 = style.Dropdown.optionsBackgroundColor })
+                    if style.Dropdown.optionsCornerRadius then
+                        local corner = optionsFrame:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+                        corner.Parent = optionsFrame
+                        corner.CornerRadius = UDim.new(0, style.Dropdown.optionsCornerRadius)
+                    end
+                    for _, button in ipairs(optionsFrame:GetChildren()) do
+                        if button:IsA("TextButton") then
+                            applyStyle(button, { BackgroundColor3 = style.Dropdown.optionsBackgroundColor, TextColor3 = style.Dropdown.textColor })
+                        end
+                    end
+                end
+                local arrow = element:FindFirstChildOfClass("TextLabel")
+                if arrow and arrow.Name == "arrow" then
+                    applyStyle(arrow, { TextColor3 = style.Dropdown.textColor })
+                end
+            elseif elementName == "Frame" and string.find(element.Name, "Checkbox") then
+                applyStyle(element, style.Checkbox)
+                if style.Checkbox.cornerRadius then
+                    local corner = element:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+                    corner.Parent = element
+                    corner.CornerRadius = UDim.new(0, style.Checkbox.cornerRadius)
+                end
+                local tick = element:FindFirstChildOfClass("TextLabel")
+                if tick then
+                    applyStyle(tick, { TextColor3 = style.Checkbox.tickColor })
+                end
+            elseif elementName == "TextBox" then
+                applyStyle(element, {
+                    BackgroundColor3 = style.TextBox.backgroundColor,
+                    TextColor3 = style.TextBox.textColor,
+                    Font = style.TextBox.font,
+                })
+                element.PlaceholderColor3 = style.TextBox.placeholderColor
+            elseif elementName == "Frame" and elementName == "ColorPicker" then
+                 applyStyle(element, {
+                    BackgroundColor3 = style.ColorPicker.backgroundColor
+                })
+                 if style.ColorPicker.cornerRadius then
+                    local corner = element:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+                    corner.Parent = element
+                    corner.CornerRadius = UDim.new(0, style.ColorPicker.cornerRadius)
+                end
+            end
+        end
+    end
+    currentTheme = themeName
+end
+
+-- Функция для переключения между темами
+local function switchTheme(root, themeName)
+    if themes[themeName] then
+        applyTheme(themeName, root)
+    else
+        warn("Theme not found: " .. themeName)
+    end
+end
+
+-- Функция для получения текущей темы
+local function getCurrentTheme()
+    return currentTheme
+end
+
+return {
+    themes = themes,
+    applyTheme = applyTheme,
+    switchTheme = switchTheme,
+    getCurrentTheme = getCurrentTheme,
+    CreateWindow = createWindow,
+    CreateButton = createButton,
+    CreateTextBox = createTextBox,
+    CreateLabel = createLabel,
+    CreateImage = createImage,
+    CreateFrame = createFrame,
+    CreateList = createList,
+    CreateSlider = createSlider,
+    CreateDropdown = createDropdown,
+    CreateCheckbox = createCheckbox,
+    CreateTabs = createTabs,
+    CreateColorPicker = createColorPicker,
+}
+
